@@ -6,7 +6,7 @@ import os
 
 sys.path.append(os.path.split(os.path.abspath(os.path.dirname(__file__)))[0])
 
-from course_helper.routers import user, websocket
+from course_helper.routers import user, websocket, course
 
 app = FastAPI()
 
@@ -17,6 +17,8 @@ async def __init():
     app.include_router(websocket.router, prefix="/websocket")
     # 用户路由
     app.include_router(user.router, prefix="/user")
+    # 课程路由
+    app.include_router(course.router, prefix="/course")
 
 
 @app.get('/')
