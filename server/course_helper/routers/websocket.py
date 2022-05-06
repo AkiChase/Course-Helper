@@ -117,12 +117,6 @@ async def __init():
     logger = Logger('WebSocket模块')
 
 
-# @router.get("/")
-# async def test():
-#
-#     print(res)
-
-
 @router.websocket("/connect/{client_id}")
 async def websocket_endpoint(websocket: WebSocket, client_id: str):
     """

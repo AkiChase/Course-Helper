@@ -28,14 +28,20 @@ class User:
     session: requests.Session = None
 
     @classmethod
-    async def get_session(cls):
-        if cls.session is None:
-            return cls.reset_session()
-        # 若已登录则需要检查登录状态是否有效
+    async def get_login_session(cls) -> requests.Session:
+        # 需要检查登录状态是否有效
         if cls.login_flag:
             if not cls.check_login():
                 # 登录状态已退出则重新登录
                 await course_login(cls.session, cls.login_model)
+            return cls.session
+        else:
+            raise CourseHelperException('用户未登录')
+
+    @classmethod
+    async def get_session(cls) -> requests.Session:
+        if cls.session is None:
+            return cls.reset_session()
         return cls.session
 
     @classmethod
@@ -80,14 +86,19 @@ async def login(data: LoginModel):
 
 @router.post("/logout")
 async def logout():
-    url = 'https://course2.xmu.edu.cn/meol/ext/xmu/logout.jsp'
-    (await User.get_session()).get(url=url)
+    try:
+        url = 'https://course2.xmu.edu.cn/meol/ext/xmu/logout.jsp'
+        (await User.get_session()).get(url=url)
 
-    # course的退出不能将统一身份、vpn的退出，所以这里重置session
-    User.reset_session()
-    User.login_flag = False
-    User.login_model = None
-    return success_info(msg='已退出登录')
+        # course的退出不能将统一身份、vpn的退出，所以这里重置session
+        User.reset_session()
+        User.login_flag = False
+        User.login_model = None
+        return success_info(msg='已退出登录')
+
+    except Exception as e:
+        logger.debug(f'退出失败 e-{e}')
+        raise HTTPException(400, detail=error_info('退出失败'))
 
 
 async def course_login(session: requests.Session, data: LoginModel):
