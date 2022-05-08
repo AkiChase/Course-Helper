@@ -7,7 +7,6 @@ import path from 'path'
 import ipcHelper from "@/utils/ipcHelper"
 
 
-
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 protocol.registerSchemesAsPrivileged([
@@ -27,6 +26,11 @@ async function createWindow() {
             preload: path.join(__dirname, "preload.js")
         }
     })
+    if (process.platform === 'win32'){
+        win.setIcon("public/favicon.ico")
+    }
+
+
     if (process.env.WEBPACK_DEV_SERVER_URL) {
         // Load the url of the dev server if in development mode
         await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL)
