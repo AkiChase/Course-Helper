@@ -152,7 +152,10 @@ async def login_vpn(session: requests.Session, account: str, pw: str) -> request
     if 'success' in login_res_json and login_res_json['success'] is True:
         return session.get(url=login_res_json['url'])
     else:
-        raise CourseHelperException('vpn登录失败')
+        if 'message' in login_res_json:
+            raise CourseHelperException(f"vpn登录失败: {login_res_json['message']}")
+        else:
+            raise CourseHelperException('vpn登录失败')
 
 
 async def login_by_ids(session: requests.Session, account: str, pw: str, login_url: str) -> requests.Response:
@@ -198,6 +201,7 @@ async def login_by_ids(session: requests.Session, account: str, pw: str, login_u
     }
 
     login_res = session.post(login_url, data=data)
-    if login_res.status_code != 200:
+    print(login_res.text.find('您提供的用户名或者密码有误'))
+    if login_res.status_code != 200 or login_res.text.find('您提供的用户名或者密码有误') > -1 or login_res.text.find('请输入验证码') > -1:
         raise CourseHelperException('统一身份登录失败')
     return login_res
