@@ -1,39 +1,207 @@
 <template>
-  <div>
-    <h1>登录页面</h1>
-    <n-button @click="changeTheme">切换</n-button>
+  <div class="container">
+    <n-card hoverable="" class="card">
+      <n-spin :show="loadingFlag">
+        <n-form
+            ref="formRef"
+            label-placement="left"
+            label-width="80"
+            :model="loginFormVal"
+            :rules="loginRules"
+            size="large"
+        >
+          <h2 style="text-align: center">用户登录</h2>
+          <n-form-item label="统一账号" path="userId">
+            <n-input clearable="" v-model:value="loginFormVal.userId" placeholder="·  输入统一身份认证账号">
+              <template #prefix>
+                <n-icon :component="User"/>
+              </template>
+            </n-input>
+          </n-form-item>
+          <n-form-item label="统一密码" path="userPw">
+            <n-input
+                type="password"
+                show-password-on="click"
+                placeholder="·  输入统一身份认证密码"
+                v-model:value="loginFormVal.userPw"
+            >
+              <template #prefix>
+                <n-icon :component="Key"/>
+              </template>
+            </n-input>
+          </n-form-item>
+          <n-form-item label="VPN账号" path="vpnId">
+            <n-input v-model:value="loginFormVal.vpnId" placeholder="·  输入厦大VPN账号">
+              <template #prefix>
+                <n-icon :component="Planet"/>
+              </template>
+            </n-input>
+          </n-form-item>
+          <n-form-item label="VPN密码" path="vpnPw">
+            <n-input
+                type="password"
+                show-password-on="click"
+                placeholder="·  输入厦大VPN密码"
+                v-model:value="loginFormVal.vpnPw"
+            >
+              <template #prefix>
+                <n-icon :component="Key"/>
+              </template>
+            </n-input>
+          </n-form-item>
+          <div style="text-align: right">
+            <n-checkbox v-model:checked="rememberFlag">
+              记住账号密码
+            </n-checkbox>
+          </div>
+          <div style="display: flex;justify-content: center">
+            <n-button @click="login" size="large" type="success" style="padding: 10px 50px">登 录</n-button>
+          </div>
+        </n-form>
+      </n-spin>
+    </n-card>
   </div>
 </template>
 
 <script>
-import {NButton, useThemeVars} from "naive-ui";
-import {useStore} from "vuex";
-import {computed} from "vue";
+import {NButton, NCard, NCheckbox, NForm, NFormItem, NIcon, NInput, NSpin, useMessage} from "naive-ui";
+import {onMounted, ref, watch} from "vue";
+import axios from 'axios'
+import {Key, User} from "@vicons/fa";
+import {Planet} from "@vicons/ionicons5";
 
 export default {
   name: "Login",
   components: {
-    NButton
+    NButton, NForm, NFormItem, NInput, NCard, NIcon, NCheckbox, NSpin,
+    User, Key, Planet
   },
   setup() {
-    const store = useStore()
-    const themeVars = useThemeVars()
+    const electronStore = window.$electron.store
+    const message = useMessage()
+    const formRef = ref(null)
 
-    function changeTheme() {
-      store.commit('SET_THEME_VARS', {themeValue: darkThemeFlag.value ? 'default' : 'darkTheme'})
+    const loadingFlag = ref(false)
+
+    // 是否记住账号密码
+    let rememberFlag = ref(electronStore.get('rememberFlag', false))
+    watch(rememberFlag, (newFlag, preFlag) => {
+      electronStore.set('rememberFlag', newFlag)
+    })
+
+    const loginFormVal = ref({
+      userId: "",
+      userPw: "",
+      vpnId: "",
+      vpnPw: ""
+    })
+    // 若记住账号密码则填充
+    if (rememberFlag) {
+      for (const k in loginFormVal.value) {
+        loginFormVal.value[k] = electronStore.get(k, '')
+      }
     }
 
-    const darkThemeFlag = computed(() => store.state.themeValue === 'darkTheme')
+
+    function sendMsg(msg, type = 'default', duration = 2500, otherOptions = {}) {
+      message.create(msg, {
+        type,
+        duration,
+        closable: true,
+        keepAliveOnHover: true,
+        ...otherOptions
+      })
+    }
+
+    onMounted(() => {
+
+    })
+
+    // onMounted()
+    // {
+    //   console.log('锚碇')
+    //   // rememberFlag.value = electronStore.get('rememberFlag', false)
+    //   // if (rememberFlag) {
+    //   //   for (const k in loginFormVal) {
+    //   //     loginFormVal.value[k] = electronStore.get(k, 'aaa')
+    //   //   }
+    //   // }
+    // }
 
     return {
-      changeTheme,
-      darkThemeFlag,
-      themeVars,
+      formRef,
+      loginFormVal,
+      loginRules: {
+        userId: {
+          required: true,
+          message: "请输入统一身份账号",
+          trigger: "blur"
+        },
+        userPw: {
+          required: true,
+          message: "请输入统一身份密码",
+          trigger: "blur"
+        },
+        vpnId: {
+          required: true,
+          message: "请输入VPN账号",
+          trigger: "blur"
+        },
+        vpnPw: {
+          required: true,
+          message: "请输入VPN密码",
+          trigger: "blur"
+        },
+      },
+      rememberFlag,
+      loadingFlag,
+      User, Key, Planet,
+      login() {
+        // ?. 若左边非null或 undefined 才继续访问右边
+        formRef.value?.validate().then(() => {
+          loadingFlag.value = true
+          // 保存最新账号密码
+          electronStore.setWithObj({...loginFormVal.value})
+
+          axios.post('http://127.0.0.1:6498/user/login', {
+            user_id: loginFormVal.value.userId,
+            user_pw: loginFormVal.value.userPw,
+            vpn_id: loginFormVal.value.vpnId,
+            vpn_pw: loginFormVal.value.vpnPw
+          }).then((res) => {
+            //请求成功的回调函数
+            if (res.data?.success) {
+              sendMsg('msg' in res.data ? res.data.msg : '登录成功！', 'success')
+            }
+
+            loadingFlag.value = false
+          }).catch((err) => {
+            sendMsg('msg' in err.response.data?.detail ? err.response.data.detail.msg : '未知错误，登录失败', 'error')
+            loadingFlag.value = false
+          })
+        }).catch(() => {
+        })
+      },
+      sendMsg
     }
   }
 }
 </script>
 
 <style scoped>
+.container {
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  box-shadow: inset 0 0 20px #fafcfe;
+  background-color: rgba(255, 255, 255, 0.4);
+  background-size: cover;
+}
 
+.card {
+  width: 70%;
+  padding: 15px 100px;
+  border-radius: 25px;
+  background-color: rgba(255, 255, 255, 0.95);
+}
 </style>

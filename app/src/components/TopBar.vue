@@ -1,22 +1,22 @@
 <template>
-  <div :style="`background-color: ${theme.bodyColor}`">
+  <div style="background-color:#fafcfe">
     <div id="drag-block"/>
     <n-button-group>
-      <n-button @click="winMinimize()" type="default">
+      <n-button @click="winMinimize()" :bordered="false" title="最小化">
         <template #icon>
           <n-icon>
             <window-minimize-regular/>
           </n-icon>
         </template>
       </n-button>
-      <n-button @click="winMaximize()">
+      <n-button @click="winMaximize()" :bordered="false" title="最大化">
         <template #icon>
           <n-icon>
             <window-maximize-regular/>
           </n-icon>
         </template>
       </n-button>
-      <n-button @click="winClose()" type="error">
+      <n-button @click="winClose()" :bordered="false" ghost="" class="close" title="关闭">
         <template #icon>
           <n-icon>
             <close/>
@@ -30,7 +30,7 @@
 <script>
 import {Close} from '@vicons/ionicons5'
 import {WindowMinimizeRegular, WindowMaximizeRegular} from '@vicons/fa'
-import {NButton, NIcon, NButtonGroup, useThemeVars,} from "naive-ui";
+import {NButton, NIcon, NButtonGroup} from "naive-ui";
 
 export default {
   name: "TopBar",
@@ -52,13 +52,10 @@ export default {
     }
 
 
-    const theme = useThemeVars()
-
     return {
       winMinimize,
       winMaximize,
       winClose,
-      theme
     }
   }
 }
@@ -72,5 +69,10 @@ export default {
 
 .n-button-group {
   margin: 0;
+}
+
+.close:hover {
+  background-color: #c12c1f;
+  color: #fff;
 }
 </style>

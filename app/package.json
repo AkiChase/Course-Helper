@@ -2,6 +2,7 @@
   "name": "course_helper",
   "version": "0.1.0",
   "private": true,
+  "author": "ruchuby",
   "description": "XMU Course Helper!",
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -13,7 +14,9 @@
   },
   "main": "background.js",
   "dependencies": {
+    "axios": "^0.27.2",
     "core-js": "^3.8.3",
+    "electron-store": "^8.0.1",
     "vue": "^3.2.13",
     "vue-router": "^4.0.3",
     "vuex": "^4.0.0"

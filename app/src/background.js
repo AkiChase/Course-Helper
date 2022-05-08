@@ -26,9 +26,9 @@ async function createWindow() {
             preload: path.join(__dirname, "preload.js")
         }
     })
-    if (process.platform === 'win32'){
-        win.setIcon("public/favicon.ico")
-    }
+
+    const Store = require('electron-store');
+    Store.initRenderer();
 
 
     if (process.env.WEBPACK_DEV_SERVER_URL) {
