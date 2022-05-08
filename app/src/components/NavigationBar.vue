@@ -10,37 +10,59 @@
     <nav-button :to="{name:'home'}">
       <settings-outline/>
     </nav-button>
-
+    <n-switch v-model:value="darkThemeFlag" size="large" style="position: absolute; bottom: 20px">
+      <template #checked-icon>
+        <n-icon :component="Moon" color="#0c7a43"/>
+      </template>
+      <template #unchecked-icon>
+        <n-icon :component="Sunny" color="#0c7a43"/>
+      </template>
+    </n-switch>
   </div>
 </template>
 
 <script>
 
 
-import {useThemeVars} from "naive-ui";
+import {darkTheme, NIcon, NSwitch, useThemeVars} from "naive-ui";
 import Login from "@/views/Login";
 import NavButton from "@/components/NavButton";
-import {SettingsOutline} from "@vicons/ionicons5";
+import {Moon, SettingsOutline, Sunny} from "@vicons/ionicons5";
+import {useStore} from "vuex";
+import {computed} from "vue";
 
 export default {
   name: "NavigationBar",
   components: {
     Login,
-    SettingsOutline,
-    NavButton
+    SettingsOutline, Sunny, Moon,
+    NavButton, NSwitch, NIcon
   },
   setup() {
+    const store = useStore()
     const themeVars = useThemeVars()
+    const darkThemeFlag = computed({
+      get() {
+        return store.state.themeValue === 'darkTheme'
+      },
+      set(v) {
+        store.commit('SET_THEME_VARS', {themeValue: v ? 'darkTheme' : 'default'})
+      }
+    })
+    const theme = computed(() => store.state.themeValue === 'darkTheme' ? darkTheme : null)
 
     return {
-      themeVars
+      themeVars,
+      darkThemeFlag,
+      theme,
+      Sunny, Moon
     }
   }
 }
 </script>
 
 <style scoped>
-.main{
+.main {
   display: flex;
   flex-direction: column;
   align-items: center;
