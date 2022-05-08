@@ -1,6 +1,6 @@
 <template>
-  <div id="header">
-    <div id="drag-block"></div>
+  <div :style="`background-color: ${theme.bodyColor}`">
+    <div id="drag-block"/>
     <n-button-group>
       <n-button @click="winMinimize()" type="default">
         <template #icon>
@@ -9,14 +9,14 @@
           </n-icon>
         </template>
       </n-button>
-      <n-button @click="winMaximize()" type="default">
+      <n-button @click="winMaximize()">
         <template #icon>
           <n-icon>
             <window-maximize-regular/>
           </n-icon>
         </template>
       </n-button>
-      <n-button @click="winClose()" type="default">
+      <n-button @click="winClose()" type="error">
         <template #icon>
           <n-icon>
             <close/>
@@ -30,7 +30,7 @@
 <script>
 import {Close} from '@vicons/ionicons5'
 import {WindowMinimizeRegular, WindowMaximizeRegular} from '@vicons/fa'
-import {NButton, NIcon, NButtonGroup} from "naive-ui";
+import {NButton, NIcon, NButtonGroup, useThemeVars,} from "naive-ui";
 
 export default {
   name: "TopBar",
@@ -39,10 +39,6 @@ export default {
     NIcon, NButton, NButtonGroup
   },
   setup() {
-    // onMounted(() => {
-    //   console.log('TopBar的锚定', process.env)
-    // })
-
     function winMinimize() {
       window.$electron.win.minimize()
     }
@@ -55,24 +51,20 @@ export default {
       window.$electron.win.close()
     }
 
+
+    const theme = useThemeVars()
+
     return {
       winMinimize,
       winMaximize,
-      winClose
+      winClose,
+      theme
     }
   }
 }
 </script>
 
 <style scoped>
-#header {
-  grid-column-start: 1;
-  grid-column-end: 3;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-}
-
 #drag-block {
   -webkit-app-region: drag;
   flex-grow: 1;
