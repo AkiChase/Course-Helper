@@ -1,46 +1,57 @@
 <template>
-  <div class="main" :style="`background-color: ${themeVars.primaryColor}`">
+  <div class="main" style="background-color: #4daf7c">
     <div class="logo">
       <img src="../assets/logo.png" alt=""/>
     </div>
 
     <nav-button :to="{name:'login'}">
-      <settings-outline/>
+      <person-circle-outline/>
     </nav-button>
     <nav-button :to="{name:'home'}">
       <settings-outline/>
     </nav-button>
+
+    <n-icon v-show="connectState" title="服务已连接" class="conn-state" size="30">
+      <Link/>
+    </n-icon>
+
+    <n-icon v-show="!connectState" title="服务已断开" class="conn-state" size="30">
+      <unlink/>
+    </n-icon>
+
+
     <n-switch v-model:value="darkThemeFlag" size="large" style="position: absolute; bottom: 20px">
       <template #checked-icon>
-        <n-icon :component="Moon" color="#0c7a43"/>
+        <n-icon :component="Moon"/>
       </template>
       <template #unchecked-icon>
-        <n-icon :component="Sunny" color="#0c7a43"/>
+        <n-icon :component="Sunny"/>
       </template>
     </n-switch>
   </div>
 </template>
 
 <script>
-
-
-import {darkTheme, NIcon, NSwitch, useThemeVars} from "naive-ui";
+import {NIcon, NSwitch} from "naive-ui";
 import Login from "@/views/Login";
 import NavButton from "@/components/NavButton";
-import {Moon, SettingsOutline, Sunny} from "@vicons/ionicons5";
+import {Moon, SettingsOutline, Sunny, PersonCircleOutline} from "@vicons/ionicons5";
 import {useStore} from "vuex";
 import {computed} from "vue";
+import {Link, Unlink} from "@vicons/tabler";
 
 export default {
   name: "NavigationBar",
   components: {
     Login,
-    SettingsOutline, Sunny, Moon,
+    SettingsOutline, Sunny, Moon, PersonCircleOutline, Link, Unlink,
     NavButton, NSwitch, NIcon
   },
   setup() {
     const store = useStore()
-    const themeVars = useThemeVars()
+
+    const connectState = computed(() => store.state.connectState)
+
     const darkThemeFlag = computed({
       get() {
         return store.state.themeValue === 'darkTheme'
@@ -49,12 +60,10 @@ export default {
         store.commit('SET_THEME_VARS', {themeValue: v ? 'darkTheme' : 'default'})
       }
     })
-    const theme = computed(() => store.state.themeValue === 'darkTheme' ? darkTheme : null)
 
     return {
-      themeVars,
       darkThemeFlag,
-      theme,
+      connectState,
       Sunny, Moon
     }
   }
@@ -66,6 +75,7 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
+  border-radius: 15px 0 0 15px;
 }
 
 .logo {
@@ -75,4 +85,15 @@ export default {
 .logo > img {
   width: 100%;
 }
+
+.conn-state {
+  position: absolute;
+  bottom: 60px;
+  color: white;
+}
+
+.conn-state[title='服务已断开'] {
+  color: #f38181;
+}
+
 </style>

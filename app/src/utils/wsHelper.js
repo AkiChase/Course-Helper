@@ -4,6 +4,7 @@ const cmd = {
     'js_encrypt': (params) => encrypt(params.data, params.key)
 }
 
+
 const that = {
     ws: null,
     lockReconnect: false, //是否正在重连
@@ -12,16 +13,27 @@ const that = {
     serverHeartTimeId: null, //服务器的心跳回复倒计时，超时则关闭连接
     reconnectTimeId: null, //断开 重连倒计时
 
+    callback: {
+        connect: null,
+        disconnect: null
+    },
+
+    injectCallback(connect, disconnect) {
+        that.callback = {connect, disconnect}
+    },
     onopen() {
         console.log('连接成功')
+        if (that.callback.connect !== null) {
+            that.callback.connect()
+        }
+        // store.commit('SET_CONNECT_STATE', {state: true})
         that.start() //开启心跳
     },
     onclose() {
         console.log("连接关闭")
-        that.reconnect() //重连
-    },
-    onerror() {
-        console.log("出现错误")
+        if (that.callback.disconnect !== null) {
+            that.callback.disconnect()
+        }
         that.reconnect() //重连
     },
     onmessage(event) {
