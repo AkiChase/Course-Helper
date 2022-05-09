@@ -4,6 +4,12 @@ export default createStore({
     state: {
         themeValue: 'default',
         connectState: false,
+        loginState: false,
+        userInfo: {
+            id: null,
+            name: '',
+            college: ''
+        }
     },
     getters: {},
     mutations: {
@@ -12,8 +18,23 @@ export default createStore({
         },
         SET_CONNECT_STATE(state, payload) {
             state.connectState = payload.state
+        },
+        SET_LOGIN_STATE(state, payload) {
+            state.loginState = payload.state
+        },
+        SET_USER_INFO(state, payload) {
+            state.userInfo = payload.info
         }
     },
-    actions: {},
+    actions: {
+        saveLoginInfo({commit}, info) {
+            commit('SET_LOGIN_STATE', {state: true})
+            commit('SET_USER_INFO', {info})
+        },
+        logout({commit}) {
+            commit('SET_LOGIN_STATE', {state: false})
+            commit('SET_USER_INFO', {info: {id: null, name: '', college: ''}})
+        }
+    },
     modules: {}
 })

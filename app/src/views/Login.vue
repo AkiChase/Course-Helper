@@ -1,107 +1,70 @@
 <template>
   <div class="main">
-    <n-card hoverable="" class="card">
+    <n-card v-show="!loginState" hoverable="" class="card">
       <n-spin :show="loadingFlag">
-        <n-form
-            ref="formRef"
-            label-placement="left"
-            label-width="80"
-            :model="loginFormVal"
-            :rules="loginRules"
-            size="large"
-        >
-          <h2 style="text-align: center">用户登录</h2>
-          <n-form-item label="统一账号" path="userId">
-            <n-input clearable="" v-model:value="loginFormVal.userId" placeholder="·  输入统一身份认证账号">
-              <template #prefix>
-                <n-icon :component="User"/>
-              </template>
-            </n-input>
-          </n-form-item>
-          <n-form-item label="统一密码" path="userPw">
-            <n-input
-                type="password"
-                show-password-on="click"
-                placeholder="·  输入统一身份认证密码"
-                v-model:value="loginFormVal.userPw"
-            >
-              <template #prefix>
-                <n-icon :component="Key"/>
-              </template>
-            </n-input>
-          </n-form-item>
-          <n-form-item label="VPN账号" path="vpnId">
-            <n-input v-model:value="loginFormVal.vpnId" placeholder="·  输入厦大VPN账号">
-              <template #prefix>
-                <n-icon :component="Planet"/>
-              </template>
-            </n-input>
-          </n-form-item>
-          <n-form-item label="VPN密码" path="vpnPw">
-            <n-input
-                type="password"
-                show-password-on="click"
-                placeholder="·  输入厦大VPN密码"
-                v-model:value="loginFormVal.vpnPw"
-            >
-              <template #prefix>
-                <n-icon :component="Key"/>
-              </template>
-            </n-input>
-          </n-form-item>
-          <div style="text-align: right">
-            <n-checkbox v-model:checked="rememberFlag">
-              记住账号密码
-            </n-checkbox>
-          </div>
-          <div style="display: flex;justify-content: center;margin-top: 15px">
-            <n-button @click="login" size="large" type="success" style="padding: 10px 50px">登 录</n-button>
-          </div>
-        </n-form>
+        <LoginForm @send-msg="sendMsg" @loading-state="changeLoadingState"/>
       </n-spin>
     </n-card>
+    <div class="after-login" v-show="loginState">
+      <n-button @click="logout" class="logout" circle="">
+        <template #icon>
+          <n-icon>
+            <log-out-outline/>
+          </n-icon>
+        </template>
+      </n-button>
+      <div class="user-info">
+        <div>
+          <div>姓名:</div>
+          <div class="name">{{ userInfo.name }}</div>
+        </div>
+        <div>
+          <div>学号:</div>
+          <div>{{ userInfo.id }}</div>
+        </div>
+        <div>
+          <div>学院:</div>
+          <div>{{ userInfo.college }}</div>
+        </div>
+      </div>
+      <div class="words">
+        <span v-for="p in words">
+          {{ p }}
+        </span>
+      </div>
+
+    </div>
   </div>
 </template>
 
 <script>
-import {NButton, NCard, NCheckbox, NForm, NFormItem, NIcon, NInput, NSpin, useMessage} from "naive-ui";
-import {onMounted, ref, watch} from "vue";
-import axios from 'axios'
-import {Key, User} from "@vicons/fa";
-import {Planet} from "@vicons/ionicons5";
+import {NButton, NCard, NIcon, NSpin, useMessage} from "naive-ui";
+import {computed, ref} from "vue";
+import LoginForm from "@/components/LoginForm";
+import {useStore} from "vuex";
+import {LogOutOutline} from "@vicons/ionicons5";
+import axios from "axios";
 
 export default {
   name: "Login",
   components: {
-    NButton, NForm, NFormItem, NInput, NCard, NIcon, NCheckbox, NSpin,
-    User, Key, Planet
+    LoginForm, NSpin, NCard, NButton, NIcon, LogOutOutline
   },
   setup() {
-    const electronStore = window.$electron.store
     const message = useMessage()
-    const formRef = ref(null)
+    const store = useStore()
+
+    const loginState = computed(() => store.state.loginState)
+    const userInfo = computed(() => store.state.userInfo)
 
     const loadingFlag = ref(false)
 
-    // 是否记住账号密码
-    let rememberFlag = ref(electronStore.get('rememberFlag', false))
-    watch(rememberFlag, (newFlag) => {
-      electronStore.set('rememberFlag', newFlag)
-    })
-
-    const loginFormVal = ref({
-      userId: "",
-      userPw: "",
-      vpnId: "",
-      vpnPw: ""
-    })
-    // 若记住账号密码则填充
-    if (rememberFlag) {
-      for (const k in loginFormVal.value) {
-        loginFormVal.value[k] = electronStore.get(k, '')
-      }
-    }
-
+    const words = `
+你要做一个不动声色的大人了。
+不准情绪化，不准偷偷想念，不准回头看。
+去过自己另外的生活。
+你要听话，不是所有的鱼都会生活在同一片海里。
+——村上春树`.trim().split('\n')
 
     function sendMsg(msg, type = 'default', duration = 2500, otherOptions = {}) {
       message.create(msg, {
@@ -113,76 +76,28 @@ export default {
       })
     }
 
-    onMounted(() => {
-
-    })
-
-    // onMounted()
-    // {
-    //   console.log('锚碇')
-    //   // rememberFlag.value = electronStore.get('rememberFlag', false)
-    //   // if (rememberFlag) {
-    //   //   for (const k in loginFormVal) {
-    //   //     loginFormVal.value[k] = electronStore.get(k, 'aaa')
-    //   //   }
-    //   // }
-    // }
-
     return {
-      formRef,
-      loginFormVal,
-      loginRules: {
-        userId: {
-          required: true,
-          message: "请输入统一身份账号",
-          trigger: "blur"
-        },
-        userPw: {
-          required: true,
-          message: "请输入统一身份密码",
-          trigger: "blur"
-        },
-        vpnId: {
-          required: true,
-          message: "请输入VPN账号",
-          trigger: "blur"
-        },
-        vpnPw: {
-          required: true,
-          message: "请输入VPN密码",
-          trigger: "blur"
-        },
-      },
-      rememberFlag,
       loadingFlag,
-      User, Key, Planet,
-      login() {
-        // ?. 若左边非null或 undefined 才继续访问右边
-        formRef.value?.validate().then(() => {
-          loadingFlag.value = true
-          // 保存最新账号密码
-          electronStore.setWithObj({...loginFormVal.value})
-
-          axios.post('http://127.0.0.1:6498/user/login', {
-            user_id: loginFormVal.value.userId,
-            user_pw: loginFormVal.value.userPw,
-            vpn_id: loginFormVal.value.vpnId,
-            vpn_pw: loginFormVal.value.vpnPw
-          }).then((res) => {
-            //请求成功的回调函数
-            if (res.data?.success) {
-              sendMsg('msg' in res.data ? res.data.msg : '登录成功！', 'success')
-            }
-
-            loadingFlag.value = false
-          }).catch((err) => {
-            sendMsg('msg' in err.response.data?.detail ? err.response.data.detail.msg : '未知错误，登录失败', 'error')
-            loadingFlag.value = false
-          })
-        }).catch(() => {
-        })
+      loginState,
+      userInfo,
+      words,
+      sendMsg,
+      changeLoadingState(state) {
+        loadingFlag.value = state
       },
-      sendMsg
+      logout() {
+        axios.get('http://127.0.0.1:6498/user/logout').then((res) => {
+          if (res.data?.success) {
+            sendMsg('msg' in res.data ? res.data.msg : '退出成功！', 'success')
+            store.dispatch('logout')
+          } else {
+            sendMsg('未知错误，退出失败', 'error')
+          }
+        }).catch((err) => {
+          sendMsg('msg' in err.response.data?.detail ? err.response.data.detail.msg : '未知错误，退出失败', 'error')
+          loadingFlag.value = false
+        })
+      }
     }
   }
 }
@@ -200,9 +115,56 @@ export default {
 
 .card {
   width: 70%;
-  padding: 15px 100px;
+  padding: 15px 10%;
   border-radius: 25px;
   border: 2px #eee solid;
   background-color: rgba(255, 255, 255, 0.9);
 }
+
+.after-login {
+  border: 5px #eee dashed;
+  width: 50%;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 5% 10%;
+  border-radius: 15px;
+  font-size: 18px;
+  position: relative;
+}
+
+.logout {
+  position: absolute;
+  right: 15px;
+  top: 15px;
+}
+
+.user-info > div {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.user-info > div > div:nth-child(1) {
+  font-weight: bold;
+}
+
+.words {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px #eee solid;
+  margin-top: 25px;
+  padding-top: 25px;
+}
+
+.words > span {
+  font-size: 14px;
+  text-align: center;
+}
+
+.words > span:last-child {
+  font-size: 12px;
+  font-weight: bold;
+  text-align: right;
+  margin-top: 15px;
+}
+
 </style>
