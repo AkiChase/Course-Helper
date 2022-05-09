@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="main">
     <n-card hoverable="" class="card">
       <n-spin :show="loadingFlag">
         <n-form
@@ -54,7 +54,7 @@
               记住账号密码
             </n-checkbox>
           </div>
-          <div style="display: flex;justify-content: center">
+          <div style="display: flex;justify-content: center;margin-top: 15px">
             <n-button @click="login" size="large" type="success" style="padding: 10px 50px">登 录</n-button>
           </div>
         </n-form>
@@ -85,7 +85,7 @@ export default {
 
     // 是否记住账号密码
     let rememberFlag = ref(electronStore.get('rememberFlag', false))
-    watch(rememberFlag, (newFlag, preFlag) => {
+    watch(rememberFlag, (newFlag) => {
       electronStore.set('rememberFlag', newFlag)
     })
 
@@ -189,12 +189,12 @@ export default {
 </script>
 
 <style scoped>
-.container {
+.main {
+  width: 100%;
+  height: 100%;
   display: flex !important;
   justify-content: center;
   align-items: center;
-  box-shadow: inset 0 0 20px #fafcfe;
-  background-color: rgba(255, 255, 255, 0.4);
   background-size: cover;
 }
 
@@ -202,6 +202,7 @@ export default {
   width: 70%;
   padding: 15px 100px;
   border-radius: 25px;
-  background-color: rgba(255, 255, 255, 0.95);
+  border: 2px #eee solid;
+  background-color: rgba(255, 255, 255, 0.9);
 }
 </style>

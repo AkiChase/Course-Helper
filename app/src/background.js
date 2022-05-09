@@ -19,9 +19,12 @@ let win //全局 BrowserWindow
 async function createWindow() {
     const screenArea = screen.getPrimaryDisplay().workAreaSize
     win = new BrowserWindow({
-        width: Math.round(screenArea.width * 0.7),
-        height: Math.round(screenArea.height * 0.9),
+        width: Math.round(screenArea.width * 0.6),
+        height: Math.round(screenArea.width * 0.45),
+        minHeight: 600,
+        minWidth: 750,
         frame: false, //关闭默认标题栏
+        transparent: true,
         webPreferences: {
             preload: path.join(__dirname, "preload.js")
         }

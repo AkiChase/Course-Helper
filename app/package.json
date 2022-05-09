@@ -24,6 +24,7 @@
   "devDependencies": {
     "@vicons/fa": "^0.12.0",
     "@vicons/ionicons5": "^0.12.0",
+    "@vicons/tabler": "^0.12.0",
     "@vue/cli-plugin-babel": "~5.0.0",
     "@vue/cli-plugin-router": "~5.0.0",
     "@vue/cli-plugin-vuex": "~5.0.0",

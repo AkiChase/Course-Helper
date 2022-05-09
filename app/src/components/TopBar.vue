@@ -1,5 +1,5 @@
 <template>
-  <div style="background-color:#fafcfe">
+  <div class="main">
     <div id="drag-block"/>
     <n-button-group>
       <n-button @click="winMinimize()" :bordered="false" title="最小化">
@@ -62,6 +62,10 @@ export default {
 </script>
 
 <style scoped>
+.main{
+  border-top-right-radius: 15px;
+}
+
 #drag-block {
   -webkit-app-region: drag;
   flex-grow: 1;
@@ -71,8 +75,15 @@ export default {
   margin: 0;
 }
 
+.close{
+  border-top-right-radius: 15px;
+}
+
 .close:hover {
+  border-top-right-radius: 15px;
   background-color: #c12c1f;
   color: #fff;
 }
+
+.close:
 </style>

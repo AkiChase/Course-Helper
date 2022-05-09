@@ -33,6 +33,10 @@ export default {
 
     onMounted(() => {
       window.$ws.connect()
+      window.$ws.injectCallback(
+          () => store.commit('SET_CONNECT_STATE', {state: true}),
+          () => store.commit('SET_CONNECT_STATE', {state: false})
+      )
     })
     return {
       theme
@@ -49,19 +53,22 @@ export default {
   width: 100%;
   grid-template-rows: auto 1fr;
   grid-template-columns: 75px 1fr;
+  background-image: url("./assets/girl.jpg");
+  background-position: center;
+  background-size: cover;
+  border-radius: 15px;
 }
 
 .viewer {
-  /*padding: 10px 25px 25px 25px;*/
-  background-image: url("./assets/StartBG.jpg");
-  background-position: center;
-  background-size: cover;
+  background-color: rgba(255, 255, 255, 0.6);
+  border-bottom-right-radius: 15px;
 }
 
 .top-bar {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  background-color: rgba(255, 255, 255, 0.6);
 }
 
 .nav-bar {
