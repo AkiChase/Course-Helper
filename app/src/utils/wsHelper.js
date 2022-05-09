@@ -26,7 +26,6 @@ const that = {
         if (that.callback.connect !== null) {
             that.callback.connect()
         }
-        // store.commit('SET_CONNECT_STATE', {state: true})
         that.start() //开启心跳
     },
     onclose() {
@@ -71,11 +70,10 @@ const that = {
         that.start(); //启动下一次心跳
     },
     connect() {
-        that.ws = new WebSocket('ws://localhost:6498/websocket/connect/abcd')
+        that.ws = new WebSocket('ws://localhost:6498/websocket/connect/course-helper')
         that.ws.onopen = that.onopen
         that.ws.onmessage = that.onmessage
         that.ws.onclose = that.onclose
-        that.ws.onerror = that.onerror
     },
     start() {
         // 存在两种心跳计时则清空

@@ -8,7 +8,7 @@
       <person-circle-outline/>
     </nav-button>
     <nav-button :to="{name:'home'}">
-      <settings-outline/>
+      <book-outline/>
     </nav-button>
 
     <n-icon v-show="connectState" title="服务已连接" class="conn-state" size="30">
@@ -18,7 +18,6 @@
     <n-icon v-show="!connectState" title="服务已断开" class="conn-state" size="30">
       <unlink/>
     </n-icon>
-
 
     <n-switch v-model:value="darkThemeFlag" size="large" style="position: absolute; bottom: 20px">
       <template #checked-icon>
@@ -35,7 +34,7 @@
 import {NIcon, NSwitch} from "naive-ui";
 import Login from "@/views/Login";
 import NavButton from "@/components/NavButton";
-import {Moon, SettingsOutline, Sunny, PersonCircleOutline} from "@vicons/ionicons5";
+import {Moon, Sunny, PersonCircleOutline, BookOutline} from "@vicons/ionicons5";
 import {useStore} from "vuex";
 import {computed} from "vue";
 import {Link, Unlink} from "@vicons/tabler";
@@ -44,7 +43,7 @@ export default {
   name: "NavigationBar",
   components: {
     Login,
-    SettingsOutline, Sunny, Moon, PersonCircleOutline, Link, Unlink,
+    Sunny, Moon, PersonCircleOutline, Link, Unlink, BookOutline,
     NavButton, NSwitch, NIcon
   },
   setup() {
