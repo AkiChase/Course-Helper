@@ -4,7 +4,9 @@ import time
 import requests
 
 from fastapi import APIRouter, HTTPException
+from lxml import etree
 from pydantic import BaseModel
+from requests import Session
 
 from ..xmu_slider import xmu_slider_code
 from ..common import success_info, CourseHelperException, error_info
@@ -71,11 +73,14 @@ async def __init():
 @router.post("/login")
 async def login(data: LoginModel):
     try:
-        await course_login(session=await User.get_session(), data=data)
+        session = await User.get_session()
+        await course_login(session, data=data)
 
         User.login_flag = True
         User.login_model = data
-        return success_info('登录成功')
+
+        user_info = get_user_info(session)
+        return success_info(msg='登录成功！', data=user_info)
     except CourseHelperException as e:
         logger.warning(f'登录失败 - 失败原因:{e}')
         raise HTTPException(400, detail=error_info(e.data))
@@ -84,7 +89,7 @@ async def login(data: LoginModel):
         raise HTTPException(400, detail=error_info('登录失败'))
 
 
-@router.post("/logout")
+@router.get("/logout")
 async def logout():
     try:
         url = 'https://course2.xmu.edu.cn/meol/ext/xmu/logout.jsp'
@@ -205,3 +210,15 @@ async def login_by_ids(session: requests.Session, account: str, pw: str, login_u
     if login_res.status_code != 200 or login_res.text.find('您提供的用户名或者密码有误') > -1 or login_res.text.find('请输入验证码') > -1:
         raise CourseHelperException('统一身份登录失败')
     return login_res
+
+
+def get_user_info(s: Session) -> dict:
+    res = s.get('https://course2.xmu.edu.cn/meol/popups/viewstudent_info.jsp?SID=224501&from=welcomepage')
+    html = etree.HTML(res.text)
+    table = html.xpath("//table[@class='infotable']")[0]
+    result = [x.text.strip() for x in table.xpath("//td")]
+    return {
+        'id': result[1],
+        'name': result[2],
+        'college': result[3]
+    }
