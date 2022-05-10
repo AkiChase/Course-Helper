@@ -41,11 +41,11 @@ async def get_course_list():
                 'teacher': td_list[2].text.strip(),
                 'course_id': href[href.find('?lid=') + 5:]
             })
-        return success_info(msg='获取成功！', data=course_list)
+        return success_info(msg='获取课程列表成功！', data=course_list)
 
     except CourseHelperException as e:
-        logger.warning(f'获取基本信息失败 - 失败原因:{e}')
+        logger.warning(f'获取课程列表失败 - 失败原因:{e}')
         raise HTTPException(400, detail=error_info(e.data))
     except Exception as e:
-        logger.debug(f'获取基本信息失败 e-{e}')
-        raise HTTPException(400, detail=error_info('获取基本信息失败'))
+        logger.debug(f'获取课程列表失败 e-{e}')
+        raise HTTPException(400, detail=error_info('获取课程列表失败'))
