@@ -8,18 +8,16 @@
 </template>
 
 <script>
-import {NButton, NCard, NIcon, NSpin, useMessage} from "naive-ui";
+import {NCard, useMessage} from "naive-ui";
 import {computed} from "vue";
 import LoginForm from "@/components/LoginForm";
 import UserInfo from "@/components/UserInfo";
 import {useStore} from "vuex";
-import {LogOutOutline} from "@vicons/ionicons5";
 
 export default {
   name: "Login",
   components: {
-    UserInfo,
-    LoginForm, NSpin, NCard, NButton, NIcon, LogOutOutline
+    UserInfo, LoginForm, NCard
   },
   setup() {
     const message = useMessage()
@@ -58,7 +56,7 @@ export default {
 .main {
   width: 100%;
   height: 100%;
-  display: flex !important;
+  display: flex;
   justify-content: center;
   align-items: center;
   background-size: cover;

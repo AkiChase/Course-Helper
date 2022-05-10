@@ -65,7 +65,7 @@ import {Key, User} from "@vicons/fa";
 import {Planet} from "@vicons/ionicons5";
 import {useStore} from "vuex";
 import {ref, watch} from "vue";
-import axios from "axios";
+import api from "@/utils/api";
 
 export default {
   name: "LoginForm",
@@ -136,22 +136,17 @@ export default {
           // 保存最新账号密码
           electronStore.setWithObj({...loginFormVal.value})
 
-          axios.post('http://127.0.0.1:6498/user/login', {
+          api.post('http://127.0.0.1:6498/user/login', {
             user_id: loginFormVal.value.userId,
             user_pw: loginFormVal.value.userPw,
             vpn_id: loginFormVal.value.vpnId,
             vpn_pw: loginFormVal.value.vpnPw
-          }).then((res) => {
-            //请求成功的回调函数
-            if (res.data?.success) {
-              emit('send-msg', 'msg' in res.data ? res.data.msg : '登录成功！', 'success')
-              store.dispatch('saveLoginInfo', {...res.data.data})
-            } else {
-              emit('send-msg', '未知错误，登录失败', 'error')
-            }
+          }).then(res => {
+            emit('send-msg', res.msg, 'success')
+            store.dispatch('saveLoginInfo', {...res.data})
             loadingFlag.value = false
-          }).catch((err) => {
-            emit('send-msg', 'msg' in err.response.data?.detail ? err.response.data.detail.msg : '未知错误，登录失败', 'error')
+          }).catch(err => {
+            emit('send-msg', err, 'error')
             loadingFlag.value = false
           })
         }).catch(() => {

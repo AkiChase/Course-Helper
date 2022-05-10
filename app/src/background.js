@@ -22,7 +22,7 @@ async function createWindow() {
         width: Math.round(screenArea.width * 0.6),
         height: Math.round(screenArea.width * 0.45),
         minHeight: 600,
-        minWidth: 750,
+        minWidth: 800,
         frame: false, //关闭默认标题栏
         transparent: true,
         webPreferences: {

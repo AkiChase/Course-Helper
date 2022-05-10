@@ -28,11 +28,11 @@ export default {
   padding: 8px 0;
   cursor: pointer;
   color: #fff;
+  transition: background-color 0.5s, color 0.5s;
 }
 
 .router-link:not(.router-link-exact-active):hover {
   background-color: #65bb8e;
-  /*color: #E9EFC0;*/
   transition: background-color 0.5s, color 0.5s;
 }
 
@@ -40,7 +40,6 @@ export default {
 .router-link-exact-active {
   background-color: #409368;
   transition: background-color 0.5s, color 0.5s;
-  /*color: #E9EFC0;*/
 }
 
 </style>

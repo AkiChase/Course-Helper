@@ -1,6 +1,6 @@
 <template>
   <n-spin class="after-login" :show="loadingFlag">
-    <n-button @click="logout" class="logout" circle="">
+    <n-button @click="logout" class="logout" size="large" circle="">
       <template #icon>
         <n-icon>
           <log-out-outline/>
@@ -8,19 +8,17 @@
       </template>
     </n-button>
     <div class="user-info">
-      <h2 style="text-align: center">登录成功</h2>
-      <div>
-        <div>姓名:</div>
-        <div class="name">{{ userInfo.name }}</div>
-      </div>
-      <div>
-        <div>学号:</div>
-        <div>{{ userInfo.id }}</div>
-      </div>
-      <div>
-        <div>学院:</div>
-        <div>{{ userInfo.college }}</div>
-      </div>
+      <n-tooltip trigger="hover" :show-arrow="false">
+        <template #trigger>
+          <n-h2 prefix="bar">
+            <n-text>
+              {{ userInfo.name }}
+            </n-text>
+          </n-h2>
+        </template>
+        {{ userInfo.id }}
+      </n-tooltip>
+      <div>{{ userInfo.college }}</div>
     </div>
     <div class="words">
         <span v-for="p in words">
@@ -31,16 +29,16 @@
 </template>
 
 <script>
-import axios from "axios";
 import {LogOutOutline} from "@vicons/ionicons5";
-import {NButton, NIcon, NSpin} from "naive-ui";
+import {NButton, NH2, NIcon, NSpin, NText, NTooltip} from "naive-ui";
 import {useStore} from "vuex";
 import {ref} from "vue";
+import api from "@/utils/api";
 
 export default {
   name: "UserInfo",
   components: {
-    NIcon, NButton, LogOutOutline, NSpin
+    NIcon, NButton, LogOutOutline, NSpin, NH2, NText, NTooltip
   },
   emits: ['send-msg',],
   props: ['userInfo', 'words'],
@@ -52,16 +50,12 @@ export default {
       loadingFlag,
       logout() {
         loadingFlag.value = true
-        axios.get('http://127.0.0.1:6498/user/logout').then((res) => {
-          if (res.data?.success) {
-            emit('send-msg', 'msg' in res.data ? res.data.msg : '退出成功！', 'success')
-            store.dispatch('logout')
-          } else {
-            emit('send-msg', '未知错误，退出失败', 'error')
-          }
+        api.get('http://127.0.0.1:6498/user/logout').then(res => {
+          emit('send-msg', res.msg, 'success')
+          store.dispatch('logout')
           loadingFlag.value = false
-        }).catch((err) => {
-          emit('send-msg', 'msg' in err.response.data?.detail ? err.response.data.detail.msg : '未知错误，退出失败', 'error')
+        }).catch(err => {
+          emit('send-msg', err, 'error')
           loadingFlag.value = false
         })
       }
@@ -71,15 +65,19 @@ export default {
 </script>
 
 <style scoped>
-.user-info > div {
+.user-info {
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
+  flex-direction: column;
+  align-items: start;
 }
 
-.user-info > div > div:nth-child(1) {
-  font-weight: bold;
+.user-info > div {
+  color: #aaa;
+  font-size: 16px;
+  padding-left: 15px;
+  position: relative;
 }
+
 
 .after-login {
   border: 5px #eee dashed;

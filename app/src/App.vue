@@ -47,6 +47,10 @@ export default {
 
 
 <style scoped>
+::-webkit-scrollbar {
+  display: none;
+}
+
 .container {
   display: grid;
   height: 100%;
@@ -62,6 +66,7 @@ export default {
 .viewer {
   background-color: rgba(255, 255, 255, 0.6);
   border-bottom-right-radius: 15px;
+  overflow-y: scroll;
 }
 
 .top-bar {
