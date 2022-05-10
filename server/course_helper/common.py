@@ -23,7 +23,7 @@ class CourseHelperException(Exception):
     """
     自定义异常
     """
-    data: dict
+    data: [dict, str]
 
     def __init__(self, data):
         self.data = data

@@ -4,7 +4,7 @@ import time
 from json import JSONDecodeError
 
 import nanoid
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, WebSocket
 
 from course_helper.logger import Logger
 
@@ -15,6 +15,17 @@ logger: Logger
 class ConnectionManager:
     active_connections: dict = {}
     wait_reply_dict: dict = {}
+
+    class Utils:
+        @staticmethod
+        async def js_encrypt(data: dict, client_id: str):
+            """
+            请求客户端 执行js 并返回结果
+            """
+            return await ConnectionManager.send_message_wait_reply({
+                'cmd': 'js_encrypt',
+                'params': data
+            }, client_id)
 
     @classmethod
     async def connect(cls, ws: WebSocket, client_id: str):
@@ -52,6 +63,7 @@ class ConnectionManager:
         """
         message_id = nanoid.generate()
         await cls.active_connections[client_id].send_text(json.dumps({
+            'reply': True,
             'message_id': message_id,
             'data': data
         }))
@@ -77,8 +89,8 @@ class ConnectionManager:
         """
         收到任何消息的触发函数
         """
-        logger.debug(f"收到消息 client_id:{client_id}")
         if isinstance(message, dict):
+            logger.debug(f"收到消息 client_id:{client_id}")
             if 'reply' in message:
                 # 存在回复
                 for _ in range(3):
@@ -89,18 +101,13 @@ class ConnectionManager:
                         future.set_result(message)
                         break
                     else:
-                        time.sleep(0.01)
+                        time.sleep(0.1)
+        elif message == 'heartCheck':
+            # logger.debug(f"收到心跳包")
+            #   心跳包回复
+            await ConnectionManager.active_connections[client_id].send_text('heartCheck')
+
         #   不满足条件的消息，不做处理
-
-
-async def _execute_js(js: str, client_id: str):
-    """
-    请求客户端 执行js 并返回结果
-    """
-    return await ConnectionManager.send_message_wait_reply({
-        'cmd': 'execute_js',
-        'js': js
-    }, client_id)
 
 
 @router.on_event("startup")
@@ -123,5 +130,5 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
 
     except JSONDecodeError:
         logger.debug(f"收到 client_id:{client_id} 非json格式消息 已忽略")
-    except WebSocketDisconnect:
+    except:
         ConnectionManager.disconnect(client_id)
