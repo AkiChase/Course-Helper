@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from lxml import etree
+from pydantic import BaseModel
 
 from .user import User
 from ..common import success_info, CourseHelperException, error_info
@@ -49,3 +50,38 @@ async def get_course_list():
     except Exception as e:
         logger.debug(f'获取课程列表失败 e-{e}')
         raise HTTPException(400, detail=error_info('获取课程列表失败'))
+
+
+@router.get('/getCourseIntroduction/{course_id}')
+async def get_course_introduction(course_id: str):
+    """
+    获取课程介绍
+    """
+    try:
+        session = await User.get_login_session()
+        res = session.get(f'https://course2.xmu.edu.cn/meol/lesson/coursesum.jsp?lid={course_id}')
+        html = etree.HTML(res.text)
+        nodes = html.xpath("//td[@class='text']//input[@type='hidden']")
+        content = nodes[0].attrib['value']
+        return success_info(msg='获取课程介绍成功', data={
+            'course_id': course_id,
+            'content': content
+        })
+
+    except CourseHelperException as e:
+        logger.warning(f'获取课程介绍失败 - 失败原因:{e}')
+        raise HTTPException(400, detail=error_info(e.data))
+    except Exception as e:
+        logger.debug(f'获取课程介绍失败 e-{e}')
+        raise HTTPException(400, detail=error_info('获取课程介绍失败'))
+
+
+class T(BaseModel):
+    url: str
+
+
+@router.post('/getTest')
+async def test(t: T):
+    s = await User.get_login_session()
+    res = s.get(url=t.url)
+    return res.text
