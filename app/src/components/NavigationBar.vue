@@ -8,6 +8,9 @@
       <person-circle-outline/>
     </nav-button>
     <nav-button :to="{name:'home'}">
+      <list-outline/>
+    </nav-button>
+    <nav-button :to="{name:'course'}">
       <book-outline/>
     </nav-button>
 
@@ -34,7 +37,7 @@
 import {NIcon, NSwitch} from "naive-ui";
 import Login from "@/views/Login";
 import NavButton from "@/components/NavButton";
-import {Moon, Sunny, PersonCircleOutline, BookOutline} from "@vicons/ionicons5";
+import {Moon, Sunny, PersonCircleOutline, BookOutline, ListOutline} from "@vicons/ionicons5";
 import {useStore} from "vuex";
 import {computed} from "vue";
 import {Link, Unlink} from "@vicons/tabler";
@@ -43,7 +46,7 @@ export default {
   name: "NavigationBar",
   components: {
     Login,
-    Sunny, Moon, PersonCircleOutline, Link, Unlink, BookOutline,
+    Sunny, Moon, PersonCircleOutline, Link, Unlink, BookOutline, ListOutline,
     NavButton, NSwitch, NIcon
   },
   setup() {

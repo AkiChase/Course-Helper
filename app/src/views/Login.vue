@@ -1,9 +1,9 @@
 <template>
   <div class="main">
     <n-card v-show="!loginState" hoverable="" class="card">
-      <LoginForm @send-msg="sendMsg"/>
+      <LoginForm/>
     </n-card>
-    <UserInfo :words="words" :userInfo="userInfo" v-show="loginState" @send-msg="sendMsg"/>
+    <UserInfo :words="words" :userInfo="userInfo" v-show="loginState"/>
   </div>
 </template>
 
@@ -13,6 +13,7 @@ import {computed} from "vue";
 import LoginForm from "@/components/LoginForm";
 import UserInfo from "@/components/UserInfo";
 import {useStore} from "vuex";
+import {useRouter} from "vue-router";
 
 export default {
   name: "Login",
@@ -21,8 +22,9 @@ export default {
   },
   setup() {
     const message = useMessage()
+    const router = useRouter()
 
-    window.$router.beforeEach((to) => {
+    router.beforeEach((to) => {
       if (to.name !== 'login' && !store.state.loginState) {
         message.error('请先登录！', {
           duration: 2000,
@@ -46,21 +48,10 @@ export default {
 你要听话，不是所有的鱼都会生活在同一片海里。
 ——村上春树`.trim().split('\n')
 
-    function sendMsg(msg, type = 'default', duration = 2500, otherOptions = {}) {
-      message.create(msg, {
-        type,
-        duration,
-        closable: true,
-        keepAliveOnHover: true,
-        ...otherOptions
-      })
-    }
-
     return {
       loginState,
       userInfo,
-      words,
-      sendMsg
+      words
     }
   }
 }

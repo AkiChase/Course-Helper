@@ -21,10 +21,9 @@
 <script>
 import TopBar from "@/components/TopBar";
 import NavigationBar from "@/components/NavigationBar";
-import {NGrid, NGi, darkTheme, NConfigProvider, NMessageProvider, useMessage} from "naive-ui";
+import {NGrid, NGi, darkTheme, NConfigProvider, NMessageProvider} from "naive-ui";
 import {computed} from "vue";
 import {useStore} from "vuex";
-
 
 export default {
   name: "Header",
@@ -44,7 +43,7 @@ export default {
 
     return {
       theme,
-      keepAlive: ['Home', 'Login']
+      keepAlive: ['Home', 'Login', 'Course']
     }
   }
 }
@@ -52,9 +51,6 @@ export default {
 
 
 <style scoped>
-::-webkit-scrollbar {
-  display: none;
-}
 
 .container {
   display: grid;

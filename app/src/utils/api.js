@@ -5,7 +5,7 @@ import store from "@/store"
 function noLoginCheck(e, reject) {
     if (e?.response?.data?.detail?.msg === '用户未登录') {
         store.dispatch('logout').then(() => {
-            window.$router.push({name: 'login'}).then(() => {
+            window.$routerPush({name: 'login'}).then(() => {
                 reject('用户未登录')
             })
         })

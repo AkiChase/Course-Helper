@@ -31,6 +31,7 @@ import {Refresh} from "@vicons/ionicons5";
 import CourseItem from "@/components/CourseItem";
 import {useStore} from "vuex";
 import api from "@/utils/api";
+import common from "@/utils/common";
 
 export default {
   name: "Home",
@@ -46,29 +47,19 @@ export default {
     const courseList = ref([])
     const loadingFlag = ref(false)
 
-    function sendMsg(msg, type = 'default', duration = 2500, otherOptions = {}) {
-      message.create(msg, {
-        type,
-        duration,
-        closable: true,
-        keepAliveOnHover: true,
-        ...otherOptions
-      })
-    }
-
     function getCourseList() {
       if (!store.state.loginState) {
-        sendMsg('请先登录！', 'error')
+        common.sendMsg(message, '请先登录！', 'error')
         return
       }
 
-      loadingFlag.value = true
+      common.showLoading(loadingFlag)
       api.get('http://127.0.0.1:6498/course/getCourseList').then(res => {
         courseList.value = res.data
-        loadingFlag.value = false
+        common.hideLoading(loadingFlag)
       }).catch(e => {
-        sendMsg(e, 'error')
-        loadingFlag.value = false
+        common.sendMsg(message, e, 'error')
+        common.hideLoading(loadingFlag)
       })
     }
 
@@ -103,7 +94,6 @@ export default {
   margin: auto;
   height: 100%;
   padding: 0 25px;
-  /*background-color: rgba(255, 255, 255, 0.8);*/
 }
 
 .course-container {

@@ -2,7 +2,7 @@
   <n-thing class="course">
     <template #avatar>
       <n-space style="height: 100%" align="center">
-        <n-button title="进入课程" circle="">
+        <n-button @click="toCourse(info['course_id'], info['name'])" title="进入课程" circle="">
           <template #icon>
             <n-icon>
               <arrow-forward-circle/>
@@ -17,11 +17,11 @@
       </n-ellipsis>
     </template>
     <template #header-extra>
-      <span class="num"># {{num}}</span>
+      <span class="num"># {{ num }}</span>
     </template>
     <template #description>
       <n-ellipsis style="max-width: 200px">
-        <span style="font-weight: bold">{{ info.teacher }}</span> - {{ info.college }}
+        <span style="font-weight: bold">{{ info['teacher'] }}</span> - {{ info['college'] }}
       </n-ellipsis>
     </template>
   </n-thing>
@@ -31,6 +31,7 @@
 <script>
 import {NAvatar, NButton, NEllipsis, NIcon, NSpace, NThing} from "naive-ui";
 import {ArrowForwardCircle, Information} from "@vicons/ionicons5";
+import {useRouter} from "vue-router";
 
 export default {
   name: "CourseItem",
@@ -39,6 +40,17 @@ export default {
     NThing, NAvatar, NIcon, NButton, NSpace, NEllipsis,
     ArrowForwardCircle, Information,
   },
+  setup() {
+    const router = useRouter()
+
+    return {
+      toCourse(id, name) {
+        router.push({
+          name: 'course', params: {id, name}
+        })
+      }
+    }
+  }
 }
 </script>
 
