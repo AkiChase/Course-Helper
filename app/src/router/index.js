@@ -1,5 +1,5 @@
 import {createRouter, createWebHashHistory} from 'vue-router'
-import Login from "@/views/Login";
+import Login from "@/views/Login"
 import Home from "@/views/Home"
 
 const routes = [
@@ -19,5 +19,7 @@ const router = createRouter({
     routes,
     history: createWebHashHistory()
 })
+
+window.$router = router
 
 export default router

@@ -20,15 +20,12 @@
           </n-grid-item>
         </n-grid>
       </div>
-
-
-      <!--      <div style="height: 25px"></div>-->
     </n-spin>
   </div>
 </template>
 
 <script>
-import {onMounted, ref} from "vue";
+import {onMounted, ref, watch} from "vue";
 import {NButton, NEmpty, NGrid, NGridItem, NH1, NIcon, NSpin, NText, useMessage} from "naive-ui";
 import {Refresh} from "@vicons/ionicons5";
 import CourseItem from "@/components/CourseItem";
@@ -75,15 +72,25 @@ export default {
       })
     }
 
-    onMounted(() => {
-      getCourseList()
-    })
+    watch(
+        () => store.state.loginState,
+        (newState, preState) => {
+          if (newState === false && preState === true) {
+            console.log('登出了')
+            courseList.value = []
+          } else {
+            console.log('登录了')
+            getCourseList()
+          }
+        }
+    )
 
+    onMounted(() => getCourseList())
 
     return {
       courseList,
       loadingFlag,
-      getCourseList
+      getCourseList,
     }
   }
 }

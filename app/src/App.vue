@@ -3,22 +3,28 @@
     <div class="container">
       <TopBar class="top-bar"/>
       <NavigationBar class="nav-bar"/>
-      <div class="viewer">
-        <n-message-provider>
-          <router-view/>
-        </n-message-provider>
-      </div>
+      <n-message-provider>
+        <div class="viewer">
+          <router-view v-slot="{ Component }">
+            <transition name="fade">
+              <keep-alive :include="keepAlive">
+                <component :is="Component"/>
+              </keep-alive>
+            </transition>
+          </router-view>
+        </div>
+      </n-message-provider>
     </div>
   </n-config-provider>
-
 </template>
 
 <script>
 import TopBar from "@/components/TopBar";
 import NavigationBar from "@/components/NavigationBar";
-import {NGrid, NGi, darkTheme, NConfigProvider, NMessageProvider} from "naive-ui";
-import {computed, onMounted} from "vue";
+import {NGrid, NGi, darkTheme, NConfigProvider, NMessageProvider, useMessage} from "naive-ui";
+import {computed} from "vue";
 import {useStore} from "vuex";
+
 
 export default {
   name: "Header",
@@ -30,16 +36,15 @@ export default {
   setup() {
     const store = useStore()
     const theme = computed(() => store.state.themeValue === 'darkTheme' ? darkTheme : null)
+    window.$ws.connect()
+    window.$ws.injectCallback(
+        () => store.commit('SET_CONNECT_STATE', {state: true}),
+        () => store.commit('SET_CONNECT_STATE', {state: false})
+    )
 
-    onMounted(() => {
-      window.$ws.connect()
-      window.$ws.injectCallback(
-          () => store.commit('SET_CONNECT_STATE', {state: true}),
-          () => store.commit('SET_CONNECT_STATE', {state: false})
-      )
-    })
     return {
-      theme
+      theme,
+      keepAlive: ['Home', 'Login']
     }
   }
 }
@@ -81,5 +86,11 @@ export default {
   grid-row-end: 3;
 }
 
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.3s;
+}
 
+.fade-enter, .fade-leave-to {
+  opacity: 0;
+}
 </style>

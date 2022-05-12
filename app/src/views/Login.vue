@@ -21,11 +21,23 @@ export default {
   },
   setup() {
     const message = useMessage()
+
+    window.$router.beforeEach((to) => {
+      if (to.name !== 'login' && !store.state.loginState) {
+        message.error('请先登录！', {
+          duration: 2000,
+          closable: true,
+          keepAliveOnHover: true
+        })
+        return false
+      }
+      return true
+    })
+
     const store = useStore()
 
     const loginState = computed(() => store.state.loginState)
     const userInfo = computed(() => store.state.userInfo)
-
 
     const words = `
 你要做一个不动声色的大人了。
@@ -34,19 +46,21 @@ export default {
 你要听话，不是所有的鱼都会生活在同一片海里。
 ——村上春树`.trim().split('\n')
 
+    function sendMsg(msg, type = 'default', duration = 2500, otherOptions = {}) {
+      message.create(msg, {
+        type,
+        duration,
+        closable: true,
+        keepAliveOnHover: true,
+        ...otherOptions
+      })
+    }
+
     return {
       loginState,
       userInfo,
       words,
-      sendMsg(msg, type = 'default', duration = 2500, otherOptions = {}) {
-        message.create(msg, {
-          type,
-          duration,
-          closable: true,
-          keepAliveOnHover: true,
-          ...otherOptions
-        })
-      },
+      sendMsg
     }
   }
 }

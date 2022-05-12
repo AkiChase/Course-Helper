@@ -1,4 +1,18 @@
 import axios from "axios";
+import store from "@/store"
+
+
+function noLoginCheck(e, reject) {
+    if (e?.response?.data?.detail?.msg === '用户未登录') {
+        store.dispatch('logout').then(() => {
+            window.$router.push({name: 'login'}).then(() => {
+                reject('用户未登录')
+            })
+        })
+    } else {
+        reject(e.response.data.detail.msg ?? '未知错误，请求失败')
+    }
+}
 
 export default {
     get(url) {
@@ -12,7 +26,7 @@ export default {
                 }
             }).catch(e => {
                 console.error('api get请求失败', e)
-                reject(e.response.data.detail.msg ?? '未知错误，请求失败')
+                noLoginCheck(e, reject)
             })
         })
     },
@@ -27,7 +41,7 @@ export default {
                 }
             }).catch(e => {
                 console.error('api post请求失败', e)
-                reject(e.response.data.detail.msg ?? '未知错误，请求失败')
+                noLoginCheck(e, reject)
             })
         })
     }
