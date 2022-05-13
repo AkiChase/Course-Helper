@@ -76,6 +76,85 @@ async def get_course_introduction(course_id: str):
         raise HTTPException(400, detail=error_info('获取课程介绍失败'))
 
 
+@router.get('/getCourseHomework/{course_id}')
+async def get_course_homework(course_id: str):
+    """
+    获取课程作业
+    """
+    try:
+        session = await User.get_login_session()
+        session.get(f'https://course2.xmu.edu.cn/meol/jpk/course/layout/newpage/index.jsp?courseId={course_id}')
+        res = session.get('https://course2.xmu.edu.cn/meol/common/hw/student/hwtask.jsp')
+        html = etree.HTML(res.text)
+        nodes: list = html.xpath("//table[@class='valuelist']//tr")
+        nodes.pop(0)
+
+        homeworks = []
+        for node in nodes:
+            cols = node.xpath("./td")
+            ele_a = cols[0].xpath("./a[1]")[0]
+            hw_obj = {
+                'hw_id': ele_a.attrib['href'][ele_a.attrib['href'].find('=') + 1:],
+                'title': ele_a.text.strip()
+            }
+
+            for index, name in enumerate(['end_data', 'score', 'publisher'], 1):
+                hw_obj[name] = cols[index].text.strip()
+
+            #   超时或已提交则为false
+            hw_obj['committable'] = len(cols[5].xpath('./a')) > 0
+            homeworks.append(hw_obj)
+
+        return success_info(msg='获取课程作业成功', data={
+            'course_id': course_id,
+            'homeworks': homeworks
+        })
+
+    except CourseHelperException as e:
+        logger.warning(f'获取课程作业失败 - 失败原因:{e}')
+        raise HTTPException(400, detail=error_info(e.data))
+    except Exception as e:
+        logger.debug(f'获取课程作业失败 e-{e}')
+        raise HTTPException(400, detail=error_info('获取课程作业失败'))
+
+
+@router.get('/getHomeworkDetails/{hw_id}')
+async def get_homework_details(hw_id: str):
+    try:
+        session = await User.get_login_session()
+        res = session.get(f'https://course2.xmu.edu.cn/meol/common/hw/student/taskanswer.jsp?hwtid={hw_id}')
+        html = etree.HTML(res.text)
+
+        content = {}
+        tables = html.xpath("//table[@class='infotable']")
+
+        for index, name in enumerate(['title', 'end_data', 'scoring_method', 'score'], 1):
+            content[name] = tables[0].xpath(f".//tr[{index}]/td")[0].text.strip()
+
+        nodes = (
+            tables[0].xpath(".//tr[5]/td/input"),
+            tables[1].xpath('.//tr[2]/td/input'),
+            tables[2].xpath('.//tr[2]/td/input'),
+        )
+        names = ('content', 'answer', 'result', 'comment')
+
+        for index in range(3):
+            content[names[index]] = nodes[index][0].attrib['value'] if len(nodes[index]) > 0 else ''
+        content['comment'] = tables[3].xpath('.//tr[2]/td')[0].text.strip()
+
+        return success_info(msg='获取课程作业成功', data={
+            'hw_id': hw_id,
+            'content': content
+        })
+
+    except CourseHelperException as e:
+        logger.warning(f'获取作业详情失败 - 失败原因:{e}')
+        raise HTTPException(400, detail=error_info(e.data))
+    except Exception as e:
+        logger.debug(f'获取作业详情失败 e-{e}')
+        raise HTTPException(400, detail=error_info('获取课程详情失败'))
+
+
 class T(BaseModel):
     url: str
 
