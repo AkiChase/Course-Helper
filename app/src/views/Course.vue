@@ -12,17 +12,51 @@
         </n-button>
       </n-h1>
 
+      <n-card>
+        <n-tabs type="line" animated="" pane-class="scrollbar">
+          <n-tab-pane display-directive="show" name="课程介绍" tab="课程介绍">
+            <n-skeleton v-if="loadingFlag" text="" :repeat="25"/>
+            <div v-show="!loadingFlag" id="course-intro">
+              <div class="prompt">
+                请从课程列表进入课程详情
+              </div>
+            </div>
+          </n-tab-pane>
+          <n-tab-pane display-directive="show" name="课程作业" tab="课程作业">
+            <n-skeleton v-if="loadingFlag" text="" :repeat="25"/>
+            <div v-show="!loadingFlag" id="course-homework">
+              <div class="prompt">
+                请从课程列表进入课程详情
+              </div>
+            </div>
+          </n-tab-pane>
+          <n-tab-pane display-directive="show" name="课程资源" tab="课程资源">
+            <n-skeleton v-if="loadingFlag" text="" :repeat="25"/>
+            <div v-show="!loadingFlag" id="course-resource">
+              <div class="prompt">
+                请从课程列表进入课程详情
+              </div>
+            </div>
+          </n-tab-pane>
+        </n-tabs>
+      </n-card>
 
-      <n-h2 style="text-align: center;margin: 10px">课程介绍</n-h2>
-      <div class="scrollbar" id="course-intro">
-        <h4 style="text-align: center">请从课程列表进入课程详情</h4>
-      </div>
+      <!--      <n-card size="small" class="scrollbar" title="课程作业" hoverable="" :segmented="{content: true}">-->
+      <!--        <n-skeleton v-if="loadingFlag" text="" :repeat="6"/>-->
+      <!--        <div v-show="!loadingFlag" id="course-homework">-->
+      <!--          <div style="font-size: 25px;color: #aaa;text-align: center;margin-top: 50px">-->
+      <!--            请从课程列表进入课程详情-->
+      <!--          </div>-->
+      <!--        </div>-->
+      <!--      </n-card>-->
+
+
     </n-spin>
   </div>
 </template>
 
 <script>
-import {NButton, NH1, NH2, NIcon, NSpin, useMessage} from "naive-ui";
+import {NButton, NCard, NH1, NIcon, NSkeleton, NSpin, NTabPane, NTabs, useMessage} from "naive-ui";
 import api from "@/utils/api";
 import {onActivated, ref} from "vue";
 import "@/style/scrollbar.css";
@@ -34,7 +68,7 @@ import common from "@/utils/common";
 export default {
   name: "Course",
   components: {
-    NButton, NH2, NH1, NSpin, NIcon,
+    NButton, NH1, NSpin, NIcon, NSkeleton, NCard, NTabs, NTabPane,
     Refresh,
   },
   props: ['id'],
@@ -91,11 +125,22 @@ export default {
   padding: 0 25px;
 }
 
-#course-intro {
-  padding: 10px 25px;
-  height: 25%;
-  border: 2px #aaa solid;
-  overflow-y: scroll;
-  border-radius: 15px 5px 5px 15px;
+.n-card {
+  border-radius: 25px;
+}
+
+.n-tab-pane {
+  height: 65vh;
+}
+
+.n-tab-pane > div {
+  padding: 15px 5%;
+}
+
+.prompt {
+  font-size: 25px;
+  color: #aaa;
+  text-align: center;
+  margin-top: 50px;
 }
 </style>

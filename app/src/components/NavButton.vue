@@ -1,6 +1,6 @@
 <template>
-  <router-link custom v-slot="{ navigate, isExactActive }" :to="to">
-    <div @click="navigate" :class="isExactActive ? 'router-link router-link-exact-active' : 'router-link'">
+  <router-link custom v-slot="{ navigate, isActive }" :to="to">
+    <div @click="navigate" :class="isActive ? 'router-link router-link-active' : 'router-link'">
       <n-icon :size="30">
         <slot></slot>
       </n-icon>
@@ -31,13 +31,13 @@ export default {
   transition: background-color 0.5s, color 0.5s;
 }
 
-.router-link:not(.router-link-exact-active):hover {
+.router-link:not(.router-link-active):hover {
   background-color: #65bb8e;
   transition: background-color 0.5s, color 0.5s;
 }
 
 
-.router-link-exact-active {
+.router-link-active {
   background-color: #409368;
   transition: background-color 0.5s, color 0.5s;
 }
