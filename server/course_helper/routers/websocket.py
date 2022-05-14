@@ -49,7 +49,7 @@ class ConnectionManager:
         """
         给某个连接发送消息
         """
-        message_id = nanoid.generate
+        message_id = nanoid.generate()
         await cls.active_connections[client_id].send_text(json.dumps({
             'message_id': message_id,
             'data': data

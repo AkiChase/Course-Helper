@@ -1,3 +1,6 @@
+import re
+
+import nanoid
 from fastapi import APIRouter, HTTPException
 from lxml import etree
 from pydantic import BaseModel
@@ -153,6 +156,53 @@ async def get_homework_details(hw_id: str):
     except Exception as e:
         logger.debug(f'获取作业详情失败 e-{e}')
         raise HTTPException(400, detail=error_info('获取课程详情失败'))
+
+
+@router.get('/getCourseResource/{course_id}')
+async def get_course_resource(course_id: str, folder_id: str = '0', deep: bool = False):
+    """
+    获取课程资源
+    """
+    try:
+        session = await User.get_login_session()
+        content = get_resource_in_folder(course_id, folder_id, session, deep_flag=deep)
+        return success_info(msg='获取课程资源成功', data={
+            'course_id': course_id,
+            'content': content
+        })
+
+    except CourseHelperException as e:
+        logger.warning(f'获取课程资源失败 - 失败原因:{e}')
+        raise HTTPException(400, detail=error_info(e.data))
+    except Exception as e:
+        logger.debug(f'获取课程资源失败 e-{e}')
+        raise HTTPException(400, detail=error_info('获取课程资源失败'))
+
+
+def get_resource_in_folder(course_id, folder_id, s, deep_flag=False) -> list:
+    res = s.get(f'https://course2.xmu.edu.cn/meol/common/script/listview.jsp?folderid={folder_id}&lid={course_id}')
+    html = etree.HTML(res.text)
+    nodes: list = html.xpath("//table[@class='valuelist']//tr")
+    content = []
+    for row in nodes:
+        # 表头栏跳过（可能出现多个表头）
+        if len(row.xpath("./th")) > 0:
+            continue
+        img_url = row.xpath(".//img")[0].attrib['src']
+        type_name = img_url[img_url.rfind('/') + 1:img_url.rfind('.')]
+        res_ele = row.xpath(".//a")[0]
+        res_url = res_ele.attrib['href']
+        res_name = res_ele.text.strip()
+
+        res_obj = {'type_name': type_name, 'res_name': res_name, 'key': nanoid.generate()}
+        if type_name == 'folder':
+            res_obj['folder_id'] = re.search(r'folderid=(\d*)', res_url).group(1)
+            if deep_flag:
+                res_obj['children'] = get_resource_in_folder(course_id, res_obj['folder_id'], s, deep_flag)
+        else:
+            res_obj['fileid'], res_obj['res_id'] = re.search(r'fileid=(\d*).*?resid=(\d*)', res_url).group(1, 2)
+        content.append(res_obj)
+    return content
 
 
 class T(BaseModel):
