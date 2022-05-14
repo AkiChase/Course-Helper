@@ -9,15 +9,18 @@ function noLoginCheck(e, reject) {
                 reject('用户未登录')
             })
         })
-    } else {
-        reject(e.response.data.detail.msg ?? '未知错误，请求失败')
-    }
+    } else if (e?.message.indexOf('timeout') > -1) reject('请求超时')
+    else reject(e?.response?.data?.detail?.msg ?? '未知错误，请求失败')
 }
 
 export default {
     get(url) {
         return new Promise((resolve, reject) => {
-            axios.get(url).then(res => {
+            if (!store.state.connectState) {
+                reject('服务端未连接！')
+                return
+            }
+            axios.get(url, {timeout: 5000}).then(res => {
                 if (!res.data?.success) {
                     console.error('api get请求失败', res.data)
                     reject(res.data.detail.msg ?? '未知错误，请求失败')
@@ -32,7 +35,11 @@ export default {
     },
     post(url, data) {
         return new Promise((resolve, reject) => {
-            axios.post(url, data).then(res => {
+            if (!store.state.connectState) {
+                reject('服务端未连接！')
+                return
+            }
+            axios.post(url, data, {timeout: 5000}).then(res => {
                 if (!res.data?.success) {
                     console.error('api post请求失败', res.data)
                     reject(res.data.detail.msg ?? '未知错误，请求失败')

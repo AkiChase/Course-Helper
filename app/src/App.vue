@@ -4,15 +4,17 @@
       <TopBar class="top-bar"/>
       <NavigationBar class="nav-bar"/>
       <n-message-provider>
-        <div class="viewer">
-          <router-view v-slot="{ Component }">
-            <transition name="fade">
-              <keep-alive :include="keepAlive">
-                <component :is="Component"/>
-              </keep-alive>
-            </transition>
-          </router-view>
-        </div>
+        <n-loading-bar-provider>
+          <div class="viewer">
+            <router-view v-slot="{ Component }">
+              <transition name="fade">
+                <keep-alive :include="keepAlive">
+                  <component :is="Component"/>
+                </keep-alive>
+              </transition>
+            </router-view>
+          </div>
+        </n-loading-bar-provider>
       </n-message-provider>
     </div>
   </n-config-provider>
@@ -21,7 +23,7 @@
 <script>
 import TopBar from "@/components/TopBar";
 import NavigationBar from "@/components/NavigationBar";
-import {NGrid, NGi, darkTheme, NConfigProvider, NMessageProvider} from "naive-ui";
+import {NGrid, NGi, darkTheme, NConfigProvider, NMessageProvider, NLoadingBarProvider} from "naive-ui";
 import {computed} from "vue";
 import {useStore} from "vuex";
 
@@ -30,7 +32,7 @@ export default {
   components: {
     NavigationBar,
     TopBar,
-    NGrid, NGi, NConfigProvider, NMessageProvider
+    NGrid, NGi, NConfigProvider, NMessageProvider, NLoadingBarProvider,
   },
   setup() {
     const store = useStore()
