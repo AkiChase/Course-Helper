@@ -50,6 +50,7 @@ export default {
     function getCourseList() {
       if (!store.state.loginState) {
         common.sendMsg(message, '请先登录！', 'error')
+        window.$routerPush({name: 'login'})
         return
       }
 
