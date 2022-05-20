@@ -133,8 +133,13 @@ export default {
         // ?. 若左边非null或 undefined 才继续访问右边
         formRef.value?.validate().then(() => {
           common.showLoading(loadingFlag)
-          // 保存最新账号密码
-          electronStore.setWithObj({...loginFormVal.value})
+          // 保存最新账号密码 或 清空保存的密码
+          electronStore.setWithObj(rememberFlag.value ? {...loginFormVal.value} : {
+            userId: "",
+            userPw: "",
+            vpnId: "",
+            vpnPw: ""
+          })
 
           api.post('http://127.0.0.1:6498/user/login', {
             user_id: loginFormVal.value.userId,
