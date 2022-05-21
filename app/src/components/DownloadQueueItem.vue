@@ -18,7 +18,7 @@
         </div>
         <n-progress
             status="success"
-            :percentage="(item.downSizeRaw*100 / item.fileSizeRaw).toFixed(0)"
+            :percentage="Math.round(item.downSizeRaw*100 / item.fileSizeRaw)"
             :show-indicator="true"
             :height="10"
             indicator-placement="inside"
