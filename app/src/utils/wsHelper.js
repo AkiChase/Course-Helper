@@ -1,7 +1,23 @@
 import encrypt from '@/utils/encrypt'
+import store from "@/store"
 
 const cmd = {
-    'js_encrypt': (params) => encrypt(params.data, params.key)
+    'js_encrypt': params => encrypt(params.data, params.key),
+    'update_download_progress': params => {
+        if ('finished' in params) {
+            return store.dispatch('updateDownloadProgress', {
+                downloadId: params['download_id'],
+                finished: true
+            })
+        }
+        return store.dispatch('updateDownloadProgress', {
+            downloadId: params['download_id'],
+            speed: params['speed'],
+            timeRemain: params['time_remain'],
+            downSize: params['down_size'],
+            downSizeRaw: params['down_size_raw'],
+        })
+    }
 }
 
 
@@ -38,8 +54,6 @@ const that = {
     onmessage(event) {
         if (event.data !== 'heartCheck') {
             let msg = JSON.parse(event.data)
-            console.log('收到消息', msg)
-
             let resData = 'ERROR'
             if ('data' in msg && 'cmd' in msg.data) {
                 let data = msg.data
@@ -47,7 +61,7 @@ const that = {
                     try {
                         resData = cmd[data.cmd](data.params)
                     } catch (e) {
-                        console.log('error', e)
+                        console.log('消息错误', e)
                     }
                 }
             }
@@ -58,7 +72,6 @@ const that = {
                     reply: true,
                     data: resData
                 }
-                console.log('回复消息', out)
                 that.ws.send(JSON.stringify(out))
             }
         }

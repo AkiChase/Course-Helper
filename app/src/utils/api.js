@@ -14,13 +14,13 @@ function noLoginCheck(e, reject) {
 }
 
 export default {
-    get(url) {
+    get(url, params = {}) {
         return new Promise((resolve, reject) => {
             if (!store.state.connectState) {
                 reject('服务端未连接！')
                 return
             }
-            axios.get(url, {timeout: 5000}).then(res => {
+            axios.get(url, {timeout: 5000, params}).then(res => {
                 if (!res.data?.success) {
                     console.error('api get请求失败', res.data)
                     reject(res.data.detail.msg ?? '未知错误，请求失败')

@@ -68,10 +68,8 @@ export default {
         () => store.state.loginState,
         (newState, preState) => {
           if (newState === false && preState === true) {
-            console.log('登出了')
             courseList.value = []
           } else {
-            console.log('登录了')
             getCourseList()
           }
         }
