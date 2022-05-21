@@ -1,7 +1,7 @@
 import asyncio
 import json
-import time
 from json import JSONDecodeError
+from threading import Lock
 
 import nanoid
 from fastapi import APIRouter, WebSocket
@@ -15,6 +15,7 @@ logger: Logger
 class ConnectionManager:
     active_connections: dict = {}
     wait_reply_dict: dict = {}
+    lock = Lock()
 
     class Utils:
         @staticmethod
@@ -54,7 +55,6 @@ class ConnectionManager:
             'message_id': message_id,
             'data': data
         }))
-        logger.debug(f"发送消息给 client_id:{client_id} | message_id:{message_id}")
 
     @classmethod
     async def send_message_wait_reply(cls, data, client_id: str):
@@ -101,7 +101,7 @@ class ConnectionManager:
                         future.set_result(message)
                         break
                     else:
-                        time.sleep(0.1)
+                        await asyncio.sleep(0.1)
         elif message == 'heartCheck':
             # logger.debug(f"收到心跳包")
             #   心跳包回复
