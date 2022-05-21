@@ -9,9 +9,7 @@ import ipcHelper from "@/utils/ipcHelper"
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
-protocol.registerSchemesAsPrivileged([
-    {scheme: 'app', privileges: {secure: true, standard: true}}
-])
+protocol.registerSchemesAsPrivileged([{scheme: 'app', privileges: {secure: true}}])
 
 
 let win //全局 BrowserWindow

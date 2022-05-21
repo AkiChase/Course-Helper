@@ -83,6 +83,7 @@
 
       </n-card>
     </n-modal>
+    <DownloadModal ref="downloadModalRef" :data="downloadModalData"/>
   </div>
 </template>
 
@@ -106,15 +107,17 @@ import common from "@/utils/common";
 import {BulbOutline, DownloadOutline, InformationCircleOutline} from "@vicons/ionicons5";
 import {Folder, FilePdf, FilePowerpoint, FileWord, FileExcel, FileVideo, FileAlt, FileArchive} from "@vicons/fa";
 import {useStore} from "vuex";
+import DownloadModal from "@/components/DownloadModal";
 
 export default {
   name: "CourseResourcePane",
   components: {
     NInput, NTree, NButton, NSpace, NIcon, NTooltip, NDropdown, NModal, NCard, NSpin, NEllipsis,
     BulbOutline, Folder, FilePdf, FilePowerpoint, FileWord, FileExcel, FileVideo, FileArchive, FileAlt, DownloadOutline,
-    InformationCircleOutline
+    InformationCircleOutline,
+    DownloadModal
   },
-  props: ['courseId'],
+  props: ['courseId', 'courseName'],
   setup(props) {
     const data = ref([])
     const message = useMessage()
@@ -151,6 +154,22 @@ export default {
     const posY = ref(0)
     const showModal = ref(false)
     const modelData = ref({fileName: '', size: '', fileTitle: ''})
+
+    const downloadModalRef = ref(null)
+    const downloadModalData = ref({
+      title: '新建下载任务',
+      form: {
+        dirPath: '',
+        treeFlag: false,
+      }
+    })
+
+    onMounted(async () => {
+      let path = await window.$electron.utils.app.getPath('downloads')
+      path = window.$electron.utils.mkDir(path, 'Course Helper')
+      downloadModalData.value.form.dirPath = path
+    })
+
 
     const nameToIcon = {
       'folder': [Folder, '#f4d16e'],
@@ -197,38 +216,65 @@ export default {
       })
     }
 
-    const dropDownSelectFn = {
-      async download(itemInfo) {
-        let path = await window.$electron.utils.app.getPath('downloads')
-        // 检查是否存在文件夹，不存在则创建
-        path = window.$electron.utils.mkDir(path, 'Course Helper')
-        common.showLoading(loadingFlag)
+    function findNode(tree, key) {
+      if (tree.key === key) {
+        return {path: [], node: tree}
+      }
 
-        const res = await window.$electron.utils.dialog.showOpenDialog({
-          title: '请选择下载目录',
-          defaultPath: path,
-          properties: ['openDirectory']
-        })
-        if (!res?.filePaths?.length) {
-          common.sendMsg(message, '未选择下载目录', 'error')
-          common.hideLoading(loadingFlag)
-          return
+      if ('children' in tree) {
+        for (let i = 0; i < tree.children.length; i++) {
+          const res = findNode(tree.children[i], key)
+          if (res !== null) {
+            res.path.unshift(tree.children[i]['res_name'])
+            return res
+          }
         }
+      }
+      return null
+    }
 
-        const dirPath = res.filePaths[0]
-        api.post('http://127.0.0.1:6498/course/downloadCourseFiles', {
-          file_list: [{
-            file_id: itemInfo.file_id,
-            res_id: itemInfo.res_id
-          }],
-          dir_path: dirPath
-        }).then(res => {
-          store.dispatch('push_download_queue', res.data)
-          common.sendMsg(message, res.msg, 'success')
-          common.hideLoading(loadingFlag)
-        }).catch(err => {
-          common.sendMsg(message, err, 'error')
-          common.hideLoading(loadingFlag)
+    function getDirPathInTree(keys, arr) {
+      const out = {}
+      keys.forEach(key => {
+        const res = findNode({children: arr}, key)
+        res.path.pop()
+        out[key] = res
+      })
+      return out
+    }
+
+    const dropDownSelectFn = {
+      download(itemInfo) {
+        downloadModalData.value.form.treeFlag = false
+        downloadModalRef.value.showDownloadModal().then(() => {
+          const dirPath = downloadModalData.value.form.dirPath
+          let fileDir = './'
+          if (downloadModalData.value.form.treeFlag) {
+            fileDir += `${props.courseName}/`
+            // 解析目录结构
+            const keyDirPath = getDirPathInTree([itemInfo.key], data.value)
+            fileDir += keyDirPath[itemInfo.key].path.join('/')
+          }
+
+          common.showLoading(loadingFlag)
+          api.post('http://127.0.0.1:6498/course/downloadCourseFiles', {
+            file_list: [{
+              file_id: itemInfo.file_id,
+              res_id: itemInfo.res_id,
+              file_dir: fileDir
+            }],
+            dir_path: dirPath
+          }).then(res => {
+            store.dispatch('push_download_queue', res.data)
+            common.sendMsg(message, res.msg, 'success')
+            common.hideLoading(loadingFlag)
+          }).catch(err => {
+            common.sendMsg(message, err, 'error')
+            common.hideLoading(loadingFlag)
+          })
+        }).catch(e => {
+          console.log(e)
+          common.sendMsg(message, '下载取消', 'error')
         })
       },
       viewResourceInfo(itemInfo) {
@@ -251,6 +297,52 @@ export default {
       }
     }
 
+    async function downloadSelected() {
+      if (!checkedKeys.value.length) {
+        common.sendMsg(message, '未选择任何项目', 'error')
+        return
+      }
+
+      downloadModalData.value.form.treeFlag = true
+      downloadModalRef.value.showDownloadModal().then(() => {
+        const dirPath = downloadModalData.value.form.dirPath
+        const fileList = []
+
+        const keyDirPath = getDirPathInTree(checkedKeys.value, data.value)
+        checkedKeys.value.forEach(key => {
+          const node = keyDirPath[key].node
+          fileList.push({
+            file_id: node.file_id,
+            res_id: node.res_id,
+            file_dir: downloadModalData.value.form.treeFlag ?
+                `./${props.courseName}/` + keyDirPath[key].path.join('/') : './'
+          })
+        })
+
+        if (fileList.length > 5) {
+          common.sendMsg(message, '下载文件数量较多(>5)，请耐心等待', 'info')
+        }
+
+        common.showLoading(loadingFlag)
+        api.post('http://127.0.0.1:6498/course/downloadCourseFiles', {
+          file_list: fileList,
+          dir_path: dirPath
+        }, fileList.length * 1000).then(res => {
+          store.dispatch('push_download_queue', res.data)
+          common.sendMsg(message, res.msg, 'success')
+          common.hideLoading(loadingFlag)
+        }).catch(err => {
+          common.sendMsg(message, err, 'error')
+          common.hideLoading(loadingFlag)
+        })
+
+      }).catch(e => {
+        console.log(e)
+        common.sendMsg(message, '下载取消', 'error')
+      })
+    }
+
+
     return {
       data,
       loadingFlag,
@@ -263,6 +355,8 @@ export default {
       dropdownOptions,
       showModal,
       modelData,
+      downloadModalRef,
+      downloadModalData,
       onLoad(node) {
         const folderId = node['folder_id']
         const courseId = props.courseId
@@ -324,9 +418,7 @@ export default {
       handleClickOutside() {
         showDropdown.value = false
       },
-      downloadSelected() {
-        console.log('下载所有选中项目， 通过store加key到资源列表内', checkedKeys.value)
-      }
+      downloadSelected
     }
   }
 }

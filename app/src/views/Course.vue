@@ -25,7 +25,8 @@
           </n-tab-pane>
           <n-tab-pane display-directive="show" :name="3" tab="课程资源">
             <n-skeleton v-if="loadingFlag" text="" :repeat="25"/>
-            <CourseResourcePane ref="refChild" v-show="!loadingFlag" :data="courseResource" :courseId="courseId"/>
+            <CourseResourcePane ref="refChild" v-show="!loadingFlag"
+                                :data="courseResource" :courseName="courseName" :courseId="courseId"/>
           </n-tab-pane>
           <template #suffix>
             <n-button @click="refresh()" circle="" size="small">
@@ -52,7 +53,7 @@ import {
   NSkeleton,
   NSpin,
   NTabPane,
-  NTabs,
+  NTabs, NText,
   useLoadingBar,
   useMessage
 } from "naive-ui";
@@ -68,7 +69,7 @@ import CourseResourcePane from "@/components/CourseResourcePane";
 export default {
   name: "Course",
   components: {
-    NButton, NH1, NSpin, NIcon, NSkeleton, NCard, NTabs, NTabPane, NEmpty,
+    NButton, NH1, NSpin, NIcon, NSkeleton, NCard, NTabs, NTabPane, NEmpty, NText,
     Refresh,
     HomeworkItem, CourseResourcePane,
   },

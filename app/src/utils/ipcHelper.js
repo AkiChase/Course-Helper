@@ -1,4 +1,4 @@
-import {ipcMain, dialog, app} from 'electron'
+import {ipcMain, dialog, app, shell} from 'electron'
 
 export default (win) => {
     ipcMain.on('win:minimize', () => win.minimize())
@@ -17,4 +17,5 @@ export default (win) => {
     ipcMain.handle('app:getPath', async (e, name) => app.getPath(name))
     ipcMain.handle('app:getFileIconUrl', async (e, filePath) =>
         (await app.getFileIcon(filePath, {size: 'large'})).toDataURL())
+    ipcMain.handle('shell:showItemInFolder', async (e, filePath) => shell.showItemInFolder(filePath))
 }

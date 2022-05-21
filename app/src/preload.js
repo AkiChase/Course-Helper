@@ -25,9 +25,13 @@ contextBridge.exposeInMainWorld('$electron', {
                 if (!fs.existsSync(finalPath)) fs.mkdirSync(finalPath, {recursive: true})
                 return finalPath
             },
+            fExists: (path) => fs.existsSync(path),
+            shell: {
+                showItemInFolder: async (path)=> await ipcRenderer.invoke('shell:showItemInFolder', path)
+            },
             app: {
                 getPath: async (name) => await ipcRenderer.invoke('app:getPath', name),
-                getFileIcon: async (filePath)=> await ipcRenderer.invoke('app:getFileIconUrl', filePath),
+                getFileIcon: async (filePath) => await ipcRenderer.invoke('app:getFileIconUrl', filePath),
             },
             dialog: {
                 showOpenDialog: async (options) => await ipcRenderer.invoke('dialog:showOpenDialog', options)
