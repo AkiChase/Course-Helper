@@ -102,6 +102,12 @@ class Downloader:
         }, client_id=tuple(ConnectionManager.active_connections.keys())[0])
 
     @classmethod
+    def _download_file_dir_check(cls, file_path: str):
+        dir_path = os.path.dirname(file_path)
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
+
+    @classmethod
     async def download_file(cls, download_id: str, file_id: str, res_id: str, path: str):
         """
         提交下载任务到队列
@@ -133,6 +139,9 @@ class Downloader:
                        f'fileid={file_info["file_id"]}&resid={file_info["res_id"]}', stream=True) as r:
                 file_size = int(r.headers['content-length'])  # 文件大小 Byte
                 download_id = file_info['download_id']
+
+                # 检查path所在文件夹
+                cls._download_file_dir_check(file_info['path'])
                 with open(file_info['path'], "wb") as file:
                     down_size = 0  # 已下载字节数
                     old_down_size = 0  # 上一次已下载字节数
@@ -141,8 +150,8 @@ class Downloader:
                         if chunk:
                             file.write(chunk)
                             down_size += len(chunk)
-                            if time.time() - now >= 1:  # 每1s计算一次下载速度
-                                speed = down_size - old_down_size
+                            if time.time() - now >= 0.5:  # 每0.5s计算一次下载速度
+                                speed = round((down_size - old_down_size) / 0.5)
                                 time_remain = round((file_size - down_size) / speed)
                                 speed_str = cls._byte_to_suitable_size(speed) + '/s'
                                 time_remain_str = cls._sec_to_suitable_time(time_remain)
@@ -151,9 +160,12 @@ class Downloader:
                                 await cls._update_download_progress(download_id, speed_str,
                                                                     time_remain_str, down_size)
                                 # 避免阻塞ws通知的线程
-                                await asyncio.sleep(1)
+                                await asyncio.sleep(0.01)
                                 old_down_size = down_size
                                 now = time.time()
                 # 此文件下载结束ws消息
                 await cls._download_finished(download_id)
-                cls.running = False
+                # 避免请求过频繁
+                await asyncio.sleep(0.5)
+
+        cls.running = False

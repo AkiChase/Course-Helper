@@ -1,3 +1,4 @@
+import asyncio
 import os
 import re
 
@@ -233,7 +234,8 @@ async def download_course_files(data: DownloadFilesModel, background_tasks: Back
             file_info = await Downloader.get_file_info(session, item.file_id, item.res_id)
             if file_info['success']:
                 while True:
-                    file_path = os.path.join(data.dir_path, file_info['file_name'])
+                    # 拼接目录 子目录 文件名
+                    file_path = os.path.abspath(os.path.join(data.dir_path, item.file_dir, file_info['file_name']))
                     if os.path.exists(file_path):
                         # 文件名重复则添加一个#
                         file_name_no_ext = file_info['file_name'][0:file_info['file_name'].rfind('.')]
@@ -248,6 +250,8 @@ async def download_course_files(data: DownloadFilesModel, background_tasks: Back
                 background_tasks.add_task(Downloader.download_file, download_id, item.file_id, item.res_id, file_path)
                 download_info.append(file_info)
                 logger.success(f'下载任务创建成功 download_id:{download_id} size:{file_info["file_size"]} path:{file_path}')
+                # 降低请求频率
+                await asyncio.sleep(0.25)
 
         return success_info('文件已添加到下载列表', data=download_info)
 
