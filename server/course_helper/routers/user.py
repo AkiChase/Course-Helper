@@ -213,12 +213,20 @@ async def login_by_ids(session: requests.Session, account: str, pw: str, login_u
 
 
 def get_user_info(s: Session) -> dict:
-    res = s.get('https://course2.xmu.edu.cn/meol/popups/viewstudent_info.jsp?SID=224501&from=welcomepage')
+    res = s.get('https://course2.xmu.edu.cn/meol/welcomepage/student/index.jsp')
+    sid = re.search(r'viewstudent_info.jsp\?SID=(\d.*?)&', res.text).group(1)
+
+    res = s.get(f'https://course2.xmu.edu.cn/meol/popups/viewstudent_info.jsp?SID={sid}&from=welcomepage')
     html = etree.HTML(res.text)
     table = html.xpath("//table[@class='infotable']")[0]
-    result = [x.text.strip() for x in table.xpath("//td")]
-    return {
+    result = [x.text.strip() for x in table.xpath(".//td")]
+
+    out = {
         'id': result[1],
         'name': result[2],
         'college': result[3]
     }
+
+    logger.debug('用户信息', out)
+
+    return out
