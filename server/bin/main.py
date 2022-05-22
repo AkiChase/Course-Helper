@@ -14,7 +14,7 @@ app = FastAPI()
 
 # 设置允许访问的域名
 origins = [
-    'http://localhost:8080'
+    '*'
 ]  # 也可以设置为"*"，即为所有。
 
 # 设置跨域传参

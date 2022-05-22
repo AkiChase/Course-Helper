@@ -1,9 +1,9 @@
 <template>
   <div class="main">
     <n-card v-show="!loginState" hoverable="" class="card">
-      <LoginForm @send-msg="sendMsg"/>
+      <LoginForm/>
     </n-card>
-    <UserInfo :words="words" :userInfo="userInfo" v-show="loginState" @send-msg="sendMsg"/>
+    <UserInfo :words="words" :userInfo="userInfo" v-show="loginState"/>
   </div>
 </template>
 
@@ -13,6 +13,9 @@ import {computed} from "vue";
 import LoginForm from "@/components/LoginForm";
 import UserInfo from "@/components/UserInfo";
 import {useStore} from "vuex";
+import {useRouter} from "vue-router";
+import wsHelper from "@/utils/wsHelper";
+import common from "@/utils/common";
 
 export default {
   name: "Login",
@@ -21,11 +24,26 @@ export default {
   },
   setup() {
     const message = useMessage()
+    wsHelper.injectMessage((text, type = 'default', duration = 2500) => common.sendMsg(message, text, type, duration))
+
+    const router = useRouter()
+
+    router.beforeEach((to) => {
+      if (to.name !== 'login' && !store.state.loginState) {
+        message.error('请先登录！', {
+          duration: 2000,
+          closable: true,
+          keepAliveOnHover: true
+        })
+        return false
+      }
+      return true
+    })
+
     const store = useStore()
 
     const loginState = computed(() => store.state.loginState)
     const userInfo = computed(() => store.state.userInfo)
-
 
     const words = `
 你要做一个不动声色的大人了。
@@ -37,16 +55,7 @@ export default {
     return {
       loginState,
       userInfo,
-      words,
-      sendMsg(msg, type = 'default', duration = 2500, otherOptions = {}) {
-        message.create(msg, {
-          type,
-          duration,
-          closable: true,
-          keepAliveOnHover: true,
-          ...otherOptions
-        })
-      },
+      words
     }
   }
 }

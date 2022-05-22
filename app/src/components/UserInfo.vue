@@ -30,33 +30,34 @@
 
 <script>
 import {LogOutOutline} from "@vicons/ionicons5";
-import {NButton, NH2, NIcon, NSpin, NText, NTooltip} from "naive-ui";
+import {NButton, NH2, NIcon, NSpin, NText, NTooltip, useMessage} from "naive-ui";
 import {useStore} from "vuex";
 import {ref} from "vue";
 import api from "@/utils/api";
+import common from "@/utils/common";
 
 export default {
   name: "UserInfo",
   components: {
     NIcon, NButton, LogOutOutline, NSpin, NH2, NText, NTooltip
   },
-  emits: ['send-msg',],
   props: ['userInfo', 'words'],
-  setup(props, {emit}) {
+  setup() {
     const store = useStore()
     const loadingFlag = ref(false)
+    const message = useMessage()
 
     return {
       loadingFlag,
       logout() {
-        loadingFlag.value = true
+        common.showLoading(loadingFlag)
         api.get('http://127.0.0.1:6498/user/logout').then(res => {
-          emit('send-msg', res.msg, 'success')
+          common.sendMsg(message, res.msg, 'success')
           store.dispatch('logout')
-          loadingFlag.value = false
+          common.hideLoading(loadingFlag)
         }).catch(err => {
-          emit('send-msg', err, 'error')
-          loadingFlag.value = false
+          common.sendMsg(message, err, 'error')
+          common.hideLoading(loadingFlag)
         })
       }
     }

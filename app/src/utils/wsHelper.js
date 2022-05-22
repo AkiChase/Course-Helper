@@ -1,7 +1,25 @@
 import encrypt from '@/utils/encrypt'
+import store from "@/store"
 
 const cmd = {
-    'js_encrypt': (params) => encrypt(params.data, params.key)
+    'js_encrypt': async (params) => encrypt(params.data, params.key),
+    'update_download_progress': async (params) => {
+        if ('finished' in params) {
+            const res = await store.dispatch('updateDownloadProgress', {
+                downloadId: params['download_id'],
+                finished: true
+            })
+            that.sendMsg(`下载成功: ${res}`, 'success')
+        } else {
+            return store.dispatch('updateDownloadProgress', {
+                downloadId: params['download_id'],
+                speed: params['speed'],
+                timeRemain: params['time_remain'],
+                downSize: params['down_size'],
+                downSizeRaw: params['down_size_raw'],
+            })
+        }
+    }
 }
 
 
@@ -13,6 +31,7 @@ const that = {
     serverHeartTimeId: null, //服务器的心跳回复倒计时，超时则关闭连接
     reconnectTimeId: null, //断开 重连倒计时
 
+    sendMsg: null, // 用于发送消息提示
     callback: {
         connect: null,
         disconnect: null
@@ -20,6 +39,9 @@ const that = {
 
     injectCallback(connect, disconnect) {
         that.callback = {connect, disconnect}
+    },
+    injectMessage(sendMsg) {
+        that.sendMsg = sendMsg
     },
     onopen() {
         console.log('连接成功')
@@ -35,19 +57,17 @@ const that = {
         }
         that.reconnect() //重连
     },
-    onmessage(event) {
+    async onmessage(event) {
         if (event.data !== 'heartCheck') {
             let msg = JSON.parse(event.data)
-            console.log('收到消息', msg)
-
             let resData = 'ERROR'
             if ('data' in msg && 'cmd' in msg.data) {
                 let data = msg.data
                 if (data.cmd in cmd) {
                     try {
-                        resData = cmd[data.cmd](data.params)
+                        resData = await cmd[data.cmd](data.params)
                     } catch (e) {
-                        console.log('error', e)
+                        console.log('消息错误', e)
                     }
                 }
             }
@@ -58,7 +78,6 @@ const that = {
                     reply: true,
                     data: resData
                 }
-                console.log('回复消息', out)
                 that.ws.send(JSON.stringify(out))
             }
         }
