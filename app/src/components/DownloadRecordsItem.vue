@@ -48,7 +48,7 @@
 
 <script>
 import {NButton, NEllipsis, NIcon, NTooltip} from "naive-ui";
-import {InformationOutline, FolderOpenOutline, CloseOutline} from "@vicons/ionicons5";
+import {CloseOutline, FolderOpenOutline, InformationOutline} from "@vicons/ionicons5";
 import {useStore} from "vuex";
 
 

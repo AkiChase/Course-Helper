@@ -98,6 +98,7 @@ export default createStore({
                     downloadId: record.downloadId,
                 }
                 commit('ADD_DOWNLOAD_RECORDS', {data: [record]}) // 添加到下载记录
+                return record.fileName
             } else {
                 record.state = 'downloading'
                 record = {

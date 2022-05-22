@@ -14,6 +14,8 @@ import LoginForm from "@/components/LoginForm";
 import UserInfo from "@/components/UserInfo";
 import {useStore} from "vuex";
 import {useRouter} from "vue-router";
+import wsHelper from "@/utils/wsHelper";
+import common from "@/utils/common";
 
 export default {
   name: "Login",
@@ -22,6 +24,8 @@ export default {
   },
   setup() {
     const message = useMessage()
+    wsHelper.injectMessage((text, type = 'default', duration = 2500) => common.sendMsg(message, text, type, duration))
+
     const router = useRouter()
 
     router.beforeEach((to) => {

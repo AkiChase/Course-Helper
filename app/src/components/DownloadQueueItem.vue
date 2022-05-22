@@ -54,7 +54,7 @@
 
 <script>
 import {NButton, NEllipsis, NIcon, NProgress, NTooltip} from "naive-ui";
-import {InformationCircleOutline, FolderOutline} from "@vicons/ionicons5";
+import {FolderOutline, InformationCircleOutline} from "@vicons/ionicons5";
 
 export default {
   name: "DownloadQueueItem",

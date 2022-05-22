@@ -103,9 +103,6 @@ export default {
             dir_path: dirPath
           }).then(res => {
             common.sendMsg(message, res.msg, 'success')
-            common.sendMsg(message, `文件名: ${res.data['file_name']}`, 'info')
-            common.sendMsg(message, `保存路径: ${res.data['file_path']}`, 'info')
-            common.sendMsg(message, `文件大小: ${res.data['file_size']}`, 'info')
             common.hideLoading(loadingFlag)
           }).catch(err => {
             common.sendMsg(message, err, 'error')

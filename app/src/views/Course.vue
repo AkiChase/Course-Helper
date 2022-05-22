@@ -53,7 +53,8 @@ import {
   NSkeleton,
   NSpin,
   NTabPane,
-  NTabs, NText,
+  NTabs,
+  NText,
   useLoadingBar,
   useMessage
 } from "naive-ui";

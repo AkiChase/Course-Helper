@@ -55,11 +55,11 @@
 <script>
 import {NButton, NEllipsis, NIcon, NSpace, NTooltip} from "naive-ui";
 import {
-  PersonCircleOutline,
+  ArrowForwardOutline,
   CalendarOutline,
-  RibbonOutline,
   PaperPlaneOutline,
-  ArrowForwardOutline
+  PersonCircleOutline,
+  RibbonOutline
 } from "@vicons/ionicons5";
 import {useStore} from "vuex";
 

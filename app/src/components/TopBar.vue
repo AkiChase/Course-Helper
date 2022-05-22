@@ -29,8 +29,8 @@
 
 <script>
 import {Close} from '@vicons/ionicons5'
-import {WindowMinimizeRegular, WindowMaximizeRegular} from '@vicons/fa'
-import {NButton, NIcon, NButtonGroup} from "naive-ui";
+import {WindowMaximizeRegular, WindowMinimizeRegular} from '@vicons/fa'
+import {NButton, NButtonGroup, NIcon} from "naive-ui";
 import {useStore} from "vuex";
 
 export default {

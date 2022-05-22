@@ -1,4 +1,4 @@
-import {ipcMain, dialog, app, shell} from 'electron'
+import {app, dialog, ipcMain, shell} from 'electron'
 
 export default (win) => {
     ipcMain.on('win:minimize', () => win.minimize())

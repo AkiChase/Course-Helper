@@ -26,8 +26,8 @@
 import TopBar from "@/components/TopBar";
 import NavigationBar from "@/components/NavigationBar";
 import wsHelper from "@/utils/wsHelper";
-import {NGrid, NGi, darkTheme, NConfigProvider, NMessageProvider, NLoadingBarProvider, NDialogProvider} from "naive-ui";
-import {computed, onMounted, watch} from "vue";
+import {darkTheme, NConfigProvider, NDialogProvider, NGi, NGrid, NLoadingBarProvider, NMessageProvider} from "naive-ui";
+import {computed, watch} from "vue";
 import {useStore} from "vuex";
 
 
@@ -41,7 +41,6 @@ export default {
   setup() {
     const store = useStore()
     const theme = computed(() => store.state.themeValue === 'darkTheme' ? darkTheme : null)
-
 
     wsHelper.connect()
     wsHelper.injectCallback(

@@ -91,11 +91,13 @@
 import {
   NButton,
   NCard,
-  NDropdown, NEllipsis,
+  NDropdown,
+  NEllipsis,
   NIcon,
   NInput,
   NModal,
-  NSpace, NSpin,
+  NSpace,
+  NSpin,
   NTooltip,
   NTree,
   useLoadingBar,
@@ -105,7 +107,7 @@ import {h, onMounted, ref} from "vue";
 import api from "@/utils/api";
 import common from "@/utils/common";
 import {BulbOutline, DownloadOutline, InformationCircleOutline} from "@vicons/ionicons5";
-import {Folder, FilePdf, FilePowerpoint, FileWord, FileExcel, FileVideo, FileAlt, FileArchive} from "@vicons/fa";
+import {FileAlt, FileArchive, FileExcel, FilePdf, FilePowerpoint, FileVideo, FileWord, Folder} from "@vicons/fa";
 import {useStore} from "vuex";
 import DownloadModal from "@/components/DownloadModal";
 

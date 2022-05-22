@@ -44,13 +44,13 @@ import {NIcon, NSwitch} from "naive-ui";
 import Login from "@/views/Login";
 import NavButton from "@/components/NavButton";
 import {
-  Moon,
-  Sunny,
-  PersonCircleOutline,
   BookOutline,
-  ListOutline,
+  CloudDownloadOutline,
   DocumentTextOutline,
-  CloudDownloadOutline
+  ListOutline,
+  Moon,
+  PersonCircleOutline,
+  Sunny
 } from "@vicons/ionicons5";
 import {useStore} from "vuex";
 import {computed} from "vue";
