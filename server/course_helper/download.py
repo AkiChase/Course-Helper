@@ -28,7 +28,7 @@ class Downloader:
         return file_name[pos + len('filename="'): -1]
 
     @staticmethod
-    def byte_to_suitable_size(byte_size: int) -> str:
+    def byte_to_suitable_size(byte_size: int)->str:
         """
         字节大小转合适单位大小
         """

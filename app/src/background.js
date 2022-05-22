@@ -40,8 +40,7 @@ async function createWindow() {
         // Load the index.html when not in development
         await win.loadURL('app://./index.html')
     }
-
-    win.webContents.openDevTools() //打开开发者工具
+    if (isDevelopment) win.webContents.openDevTools() //打开开发者工具
 }
 
 app.on('window-all-closed', () => {

@@ -262,7 +262,9 @@ async def download_course_files(data: DownloadFilesModel, background_tasks: Back
                 file_info['download_id'] = download_id
                 file_info['file_path'] = file_path
                 # 提交BackgroundTasks 避免阻塞当前进程
-                background_tasks.add_task(Downloader.add_download_task(), download_id, item.file_id, item.res_id, file_path)
+                background_tasks.add_task(
+                    Downloader.add_download_task, download_id, item.file_id, item.res_id, file_path
+                )
                 download_info.append(file_info)
                 logger.success(f'下载任务创建成功 download_id:{download_id} size:{file_info["file_size"]} path:{file_path}')
                 # 降低请求频率
