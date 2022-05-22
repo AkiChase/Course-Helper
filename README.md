@@ -8,7 +8,7 @@
 
 1. **下载**
 
-   Github Release: 	[CourseHelper v0.1.0](https://github.com/ruchuby/Course-Helper/releases/tag/v0.1.0)
+   Github Release: 	[CourseHelper](https://github.com/ruchuby/Course-Helper/releases/)
 
    蓝奏云:					[蓝奏云外链](https://wwi.lanzoup.com/b01ji7zne )  密码:fd85
 
