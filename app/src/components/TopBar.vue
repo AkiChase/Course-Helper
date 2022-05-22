@@ -29,8 +29,9 @@
 
 <script>
 import {Close} from '@vicons/ionicons5'
-import {WindowMinimizeRegular, WindowMaximizeRegular} from '@vicons/fa'
-import {NButton, NIcon, NButtonGroup} from "naive-ui";
+import {WindowMaximizeRegular, WindowMinimizeRegular} from '@vicons/fa'
+import {NButton, NButtonGroup, NIcon} from "naive-ui";
+import {useStore} from "vuex";
 
 export default {
   name: "TopBar",
@@ -39,30 +40,26 @@ export default {
     NIcon, NButton, NButtonGroup
   },
   setup() {
-    function winMinimize() {
-      window.$electron.win.minimize()
-    }
-
-    function winMaximize() {
-      window.$electron.win.maximize()
-    }
-
-    function winClose() {
-      window.$electron.win.close()
-    }
-
+    const store = useStore()
 
     return {
-      winMinimize,
-      winMaximize,
-      winClose,
+      winMinimize() {
+        window.$electron.win.minimize()
+      },
+      winMaximize() {
+        window.$electron.win.maximize()
+      },
+      winClose() {
+        window.$electron.store.set('downloadRecords', JSON.parse(JSON.stringify((store.state.downloadRecords))))
+        window.$electron.win.close()
+      }
     }
   }
 }
 </script>
 
 <style scoped>
-.main{
+.main {
   border-top-right-radius: 15px;
 }
 
@@ -75,7 +72,7 @@ export default {
   margin: 0;
 }
 
-.close{
+.close {
   border-top-right-radius: 15px;
 }
 
@@ -85,5 +82,9 @@ export default {
   color: #fff;
 }
 
-.close:
+.close:active {
+  border-top-right-radius: 15px;
+  background-color: #ff3a29;
+  color: #fff;
+}
 </style>

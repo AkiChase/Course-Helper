@@ -8,7 +8,16 @@
       <person-circle-outline/>
     </nav-button>
     <nav-button :to="{name:'home'}">
+      <list-outline/>
+    </nav-button>
+    <nav-button :to="{name:'course'}">
       <book-outline/>
+    </nav-button>
+    <nav-button :to="{name:'homeworkDetails'}">
+      <document-text-outline/>
+    </nav-button>
+    <nav-button :to="{name:'download'}">
+      <cloud-download-outline/>
     </nav-button>
 
     <n-icon v-show="connectState" title="服务已连接" class="conn-state" size="30">
@@ -34,7 +43,15 @@
 import {NIcon, NSwitch} from "naive-ui";
 import Login from "@/views/Login";
 import NavButton from "@/components/NavButton";
-import {Moon, Sunny, PersonCircleOutline, BookOutline} from "@vicons/ionicons5";
+import {
+  BookOutline,
+  CloudDownloadOutline,
+  DocumentTextOutline,
+  ListOutline,
+  Moon,
+  PersonCircleOutline,
+  Sunny
+} from "@vicons/ionicons5";
 import {useStore} from "vuex";
 import {computed} from "vue";
 import {Link, Unlink} from "@vicons/tabler";
@@ -43,7 +60,7 @@ export default {
   name: "NavigationBar",
   components: {
     Login,
-    Sunny, Moon, PersonCircleOutline, Link, Unlink, BookOutline,
+    Sunny, Moon, PersonCircleOutline, Link, Unlink, BookOutline, ListOutline, DocumentTextOutline, CloudDownloadOutline,
     NavButton, NSwitch, NIcon
   },
   setup() {

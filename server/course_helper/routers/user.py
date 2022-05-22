@@ -1,5 +1,5 @@
+import asyncio
 import re
-import time
 
 import requests
 
@@ -129,7 +129,7 @@ async def login_vpn(session: requests.Session, account: str, pw: str) -> request
     base_url = 'https://applg.xmu.edu.cn/wengine-auth/'
 
     # 获取滑块验证码 延迟0.5s避免请求502
-    time.sleep(0.5)
+    await asyncio.sleep(0.5)
     img_res = session.get(url=base_url + 'login/image')
     if img_res.status_code != 200:
         raise CourseHelperException('滑块验证码加载失败')

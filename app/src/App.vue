@@ -3,43 +3,73 @@
     <div class="container">
       <TopBar class="top-bar"/>
       <NavigationBar class="nav-bar"/>
-      <div class="viewer">
-        <n-message-provider>
-          <router-view/>
-        </n-message-provider>
-      </div>
+      <n-message-provider>
+        <n-loading-bar-provider>
+          <n-dialog-provider>
+            <div class="viewer">
+              <router-view v-slot="{ Component }">
+                <transition name="fade">
+                  <keep-alive :include="keepAlive">
+                    <component :is="Component"/>
+                  </keep-alive>
+                </transition>
+              </router-view>
+            </div>
+          </n-dialog-provider>
+        </n-loading-bar-provider>
+      </n-message-provider>
     </div>
   </n-config-provider>
-
 </template>
 
 <script>
 import TopBar from "@/components/TopBar";
 import NavigationBar from "@/components/NavigationBar";
-import {NGrid, NGi, darkTheme, NConfigProvider, NMessageProvider} from "naive-ui";
-import {computed, onMounted} from "vue";
+import wsHelper from "@/utils/wsHelper";
+import {darkTheme, NConfigProvider, NDialogProvider, NGi, NGrid, NLoadingBarProvider, NMessageProvider} from "naive-ui";
+import {computed, watch} from "vue";
 import {useStore} from "vuex";
+
 
 export default {
   name: "Header",
   components: {
     NavigationBar,
     TopBar,
-    NGrid, NGi, NConfigProvider, NMessageProvider
+    NGrid, NGi, NConfigProvider, NMessageProvider, NLoadingBarProvider, NDialogProvider,
   },
   setup() {
     const store = useStore()
     const theme = computed(() => store.state.themeValue === 'darkTheme' ? darkTheme : null)
 
-    onMounted(() => {
-      window.$ws.connect()
-      window.$ws.injectCallback(
-          () => store.commit('SET_CONNECT_STATE', {state: true}),
-          () => store.commit('SET_CONNECT_STATE', {state: false})
-      )
+    wsHelper.connect()
+    wsHelper.injectCallback(
+        () => store.commit('SET_CONNECT_STATE', {state: true}),
+        () => store.commit('SET_CONNECT_STATE', {state: false})
+    )
+
+    store.commit('SET_DOWNLOAD_RECORDS', {
+      data: window.$electron.store.get('downloadRecords', [])
     })
+
+    window.onbeforeunload = (e) => {
+      window.$electron.store.set('downloadRecords', JSON.parse(JSON.stringify((store.state.downloadRecords))))
+      console.log('下载记录已保存')
+    }
+
+    watch(
+        () => store.state.loginState,
+        (newState, preState) => {
+          if (newState === false && preState === true) {
+            console.log('登出')
+            window.$routerPush({name: 'login'})
+          }
+        }
+    )
+
     return {
-      theme
+      theme,
+      keepAlive: ['Home', 'Login', 'Course', 'HomeworkDetails', 'Download']
     }
   }
 }
@@ -47,9 +77,6 @@ export default {
 
 
 <style scoped>
-::-webkit-scrollbar {
-  display: none;
-}
 
 .container {
   display: grid;
@@ -81,5 +108,17 @@ export default {
   grid-row-end: 3;
 }
 
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.3s;
+}
 
+.fade-enter, .fade-leave-to {
+  opacity: 0;
+}
+</style>
+
+<style>
+.no-select {
+  user-select: none;
+}
 </style>

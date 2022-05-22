@@ -60,12 +60,13 @@
 </template>
 
 <script>
-import {NButton, NCheckbox, NForm, NFormItem, NIcon, NInput, NSpin} from "naive-ui";
+import {NButton, NCheckbox, NForm, NFormItem, NIcon, NInput, NSpin, useMessage} from "naive-ui";
 import {Key, User} from "@vicons/fa";
 import {Planet} from "@vicons/ionicons5";
 import {useStore} from "vuex";
 import {ref, watch} from "vue";
 import api from "@/utils/api";
+import common from "@/utils/common";
 
 export default {
   name: "LoginForm",
@@ -73,12 +74,11 @@ export default {
     NButton, NForm, NFormItem, NInput, NIcon, NCheckbox, NSpin,
     User, Key, Planet
   },
-  emits: ['send-msg'],
-  setup(props, {emit}) {
+  setup() {
     const electronStore = window.$electron.store
     const store = useStore()
     const loadingFlag = ref(false)
-
+    const message = useMessage()
 
     const formRef = ref(null)
 
@@ -132,9 +132,14 @@ export default {
       login() {
         // ?. 若左边非null或 undefined 才继续访问右边
         formRef.value?.validate().then(() => {
-          loadingFlag.value = true
-          // 保存最新账号密码
-          electronStore.setWithObj({...loginFormVal.value})
+          common.showLoading(loadingFlag)
+          // 保存最新账号密码 或 清空保存的密码
+          electronStore.setWithObj(rememberFlag.value ? {...loginFormVal.value} : {
+            userId: "",
+            userPw: "",
+            vpnId: "",
+            vpnPw: ""
+          })
 
           api.post('http://127.0.0.1:6498/user/login', {
             user_id: loginFormVal.value.userId,
@@ -142,12 +147,12 @@ export default {
             vpn_id: loginFormVal.value.vpnId,
             vpn_pw: loginFormVal.value.vpnPw
           }).then(res => {
-            emit('send-msg', res.msg, 'success')
+            common.sendMsg(message, res.msg, 'success')
             store.dispatch('saveLoginInfo', {...res.data})
-            loadingFlag.value = false
+            common.hideLoading(loadingFlag)
           }).catch(err => {
-            emit('send-msg', err, 'error')
-            loadingFlag.value = false
+            common.sendMsg(message, err, 'error')
+            common.hideLoading(loadingFlag)
           })
         }).catch(() => {
         })

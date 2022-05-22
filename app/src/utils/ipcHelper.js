@@ -1,4 +1,4 @@
-import {ipcMain} from 'electron'
+import {app, dialog, ipcMain, shell} from 'electron'
 
 export default (win) => {
     ipcMain.on('win:minimize', () => win.minimize())
@@ -13,8 +13,10 @@ export default (win) => {
         win.destroy()
     })
 
-    ipcMain.handle('echo', async (e, ...args) => {
-        console.log(args)
-        return args
-    })
+    ipcMain.handle('dialog:showOpenDialog', async (e, options) => dialog.showOpenDialog(options))
+    ipcMain.handle('app:getPath', async (e, name) => app.getPath(name))
+    ipcMain.handle('app:getFileIconUrl', async (e, filePath) =>
+        (await app.getFileIcon(filePath, {size: 'large'})).toDataURL())
+    ipcMain.handle('shell:showItemInFolder', async (e, filePath) => shell.showItemInFolder(filePath))
+    ipcMain.handle('download:downloadURL', async (e, url) => win.webContents.downloadURL(url))
 }

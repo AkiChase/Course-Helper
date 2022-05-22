@@ -1,6 +1,6 @@
 'use strict'
 
-import {app, protocol, BrowserWindow, screen} from 'electron'
+import {app, BrowserWindow, protocol, screen} from 'electron'
 import {createProtocol} from 'vue-cli-plugin-electron-builder/lib'
 import path from 'path'
 
@@ -9,9 +9,7 @@ import ipcHelper from "@/utils/ipcHelper"
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
-protocol.registerSchemesAsPrivileged([
-    {scheme: 'app', privileges: {secure: true, standard: true}}
-])
+protocol.registerSchemesAsPrivileged([{scheme: 'app', privileges: {secure: true}}])
 
 
 let win //全局 BrowserWindow
@@ -42,8 +40,7 @@ async function createWindow() {
         // Load the index.html when not in development
         await win.loadURL('app://./index.html')
     }
-
-    win.webContents.openDevTools() //打开开发者工具
+    if (isDevelopment) win.webContents.openDevTools() //打开开发者工具
 }
 
 app.on('window-all-closed', () => {
