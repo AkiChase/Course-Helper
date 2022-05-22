@@ -11,7 +11,8 @@ export default createStore({
             college: ''
         },
         downloadQueue: [],
-        downloadRecords: []
+        downloadRecords: [],
+        homeworkTabs: []
     },
     getters: {},
     mutations: {
@@ -55,6 +56,16 @@ export default createStore({
                 state.downloadRecords[payload.index] = payload.data
             } else {
                 state.downloadRecords = payload.data
+            }
+        },
+        ADD_HOMEWORK_TABS(state, payload) {
+            state.homeworkTabs.push(payload.data)
+        },
+        SPLICE_HOMEWORK_TABS(state, payload) {
+            if ('index' in payload) {
+                state.homeworkTabs.splice(payload.index, 1)
+            } else {
+                state.homeworkTabs.splice(0) // 全部清空
             }
         },
     },
@@ -113,7 +124,7 @@ export default createStore({
             })
             commit('PUSH_DOWNLOAD_QUEUE', {data: newData})
         },
-        remove_download_record({commit, state}, data) {
+        removeDownloadRecord({commit, state}, data) {
             if ('downloadId' in data) {
                 const index = state.downloadRecords.findIndex(item => item.downloadId === data.downloadId)
                 if (index === -1) {
@@ -124,6 +135,19 @@ export default createStore({
             } else {
                 commit('SPLICE_DOWNLOAD_RECORDS', {})
             }
+        },
+        addHomeworkTabs({commit, state}, data) {
+            const index = state.homeworkTabs.findIndex(item => item['hw_id'] === data['hw_id'])
+            if (index === -1) {
+                commit('ADD_HOMEWORK_TABS', {data})
+            }
+        },
+        removeHomeworkTabs({commit, state}, hwId) {
+            const index = state.homeworkTabs.findIndex(item => item['hw_id'] === hwId)
+            if (index !== -1) {
+                commit('SPLICE_HOMEWORK_TABS', {index})
+            }
+            return index
         }
     },
     modules: {}

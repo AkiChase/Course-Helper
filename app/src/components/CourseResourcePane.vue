@@ -160,7 +160,9 @@ export default {
       title: '新建下载任务',
       form: {
         dirPath: '',
-        treeFlag: false,
+        options: {
+          treeFlag: false,
+        }
       }
     })
 
@@ -245,11 +247,11 @@ export default {
 
     const dropDownSelectFn = {
       download(itemInfo) {
-        downloadModalData.value.form.treeFlag = false
+        downloadModalData.value.form.options.treeFlag = false
         downloadModalRef.value.showDownloadModal().then(() => {
           const dirPath = downloadModalData.value.form.dirPath
           let fileDir = './'
-          if (downloadModalData.value.form.treeFlag) {
+          if (downloadModalData.value.form.options.treeFlag) {
             fileDir += `${props.courseName}/`
             // 解析目录结构
             const keyDirPath = getDirPathInTree([itemInfo.key], data.value)
@@ -303,7 +305,7 @@ export default {
         return
       }
 
-      downloadModalData.value.form.treeFlag = true
+      downloadModalData.value.form.options.treeFlag = true
       downloadModalRef.value.showDownloadModal().then(() => {
         const dirPath = downloadModalData.value.form.dirPath
         const fileList = []
@@ -314,7 +316,7 @@ export default {
           fileList.push({
             file_id: node.file_id,
             res_id: node.res_id,
-            file_dir: downloadModalData.value.form.treeFlag ?
+            file_dir: downloadModalData.value.form.options.treeFlag ?
                 `./${props.courseName}/` + keyDirPath[key].path.join('/') : './'
           })
         })

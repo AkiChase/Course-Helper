@@ -27,7 +27,7 @@ contextBridge.exposeInMainWorld('$electron', {
             },
             fExists: (path) => fs.existsSync(path),
             shell: {
-                showItemInFolder: async (path)=> await ipcRenderer.invoke('shell:showItemInFolder', path)
+                showItemInFolder: async (path) => await ipcRenderer.invoke('shell:showItemInFolder', path)
             },
             app: {
                 getPath: async (name) => await ipcRenderer.invoke('app:getPath', name),

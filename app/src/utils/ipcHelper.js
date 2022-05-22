@@ -18,4 +18,5 @@ export default (win) => {
     ipcMain.handle('app:getFileIconUrl', async (e, filePath) =>
         (await app.getFileIcon(filePath, {size: 'large'})).toDataURL())
     ipcMain.handle('shell:showItemInFolder', async (e, filePath) => shell.showItemInFolder(filePath))
+    ipcMain.handle('download:downloadURL', async (e, url) => win.webContents.downloadURL(url))
 }

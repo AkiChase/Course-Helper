@@ -27,7 +27,7 @@ const routes = [
         component: Download,
     },
     {
-        path: '/homeworkDetails',
+        path: '/homeworkDetails/:activeId?/:courseName?',
         name: 'homeworkDetails',
         component: HomeworkDetails,
     }

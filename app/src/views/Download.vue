@@ -101,7 +101,7 @@ export default {
           positiveText: '确定',
           negativeText: '取消',
           onPositiveClick: () => {
-            store.dispatch('remove_download_record', {})
+            store.dispatch('removeDownloadRecord', {})
             common.sendMsg(message, '下载记录已清空', 'success')
           }
         })

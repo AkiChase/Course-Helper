@@ -71,7 +71,7 @@ export default {
         window.$electron.utils.shell.showItemInFolder(item.filePath)
       },
       removeRecord() {
-        store.dispatch('remove_download_record', {downloadId: item.downloadId})
+        store.dispatch('removeDownloadRecord', {downloadId: item.downloadId})
       }
     }
   }

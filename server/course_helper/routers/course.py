@@ -3,7 +3,7 @@ import os
 import re
 
 import nanoid
-from fastapi import APIRouter, HTTPException, BackgroundTasks
+from fastapi import APIRouter, HTTPException, BackgroundTasks, Response
 from lxml import etree
 from pydantic import BaseModel
 
@@ -115,7 +115,7 @@ async def get_course_homework(course_id: str):
                 'title': ele_a.text.strip()
             }
 
-            for index, name in enumerate(['end_data', 'score', 'publisher'], 1):
+            for index, name in enumerate(['end_date', 'score', 'publisher'], 1):
                 hw_obj[name] = cols[index].text.strip()
 
             #   超时或已提交则为false
@@ -145,8 +145,10 @@ async def get_homework_details(hw_id: str):
         content = {}
         tables = html.xpath("//table[@class='infotable']")
 
-        for index, name in enumerate(['title', 'end_data', 'scoring_method', 'score'], 1):
+        for index, name in enumerate(['title', 'end_date', 'scoring_method', 'score'], 1):
             content[name] = tables[0].xpath(f".//tr[{index}]/td")[0].text.strip()
+
+        content['scoring_method'] = content['scoring_method'].replace('打分制:', '')
 
         nodes = (
             tables[0].xpath(".//tr[5]/td/input"),
@@ -156,7 +158,19 @@ async def get_homework_details(hw_id: str):
         names = ('content', 'answer', 'result', 'comment')
 
         for index in range(3):
-            content[names[index]] = nodes[index][0].attrib['value'] if len(nodes[index]) > 0 else ''
+            if len(nodes[index]) > 0:
+                value = re.sub(r"(http.*/meol|/meol)(.*?openfile.jsp\?id=)",
+                               "http://127.0.0.1:6498/course/openFile/",
+                               nodes[index][0].attrib['value'])
+
+                value = re.sub(r'<a href=.*?openFile/(.*?)">(.*?)</a>',
+                               r'''<a href="javascript:void(0);" fid="\g<1>">\g<2></a>''',
+                               value)
+
+                content[names[index]] = value
+            else:
+                content[names[index]] = ''
+
         content['comment'] = tables[3].xpath('.//tr[2]/td')[0].text.strip()
 
         return success_info(msg='获取课程作业成功', data={
@@ -261,6 +275,52 @@ async def download_course_files(data: DownloadFilesModel, background_tasks: Back
     except Exception as e:
         logger.debug(f'文件下载失败 e-{e}')
         raise HTTPException(400, detail=error_info('文件下载失败'))
+
+
+class DownloadModel(BaseModel):
+    file_id: str
+    dir_path: str
+
+
+@router.post('/downloadFile')
+async def download_file(data: DownloadModel, background_tasks: BackgroundTasks):
+    s = await User.get_login_session()
+    r = s.get(f'https://course2.xmu.edu.cn/meol/common/ckeditor/openfile.jsp?id={data.file_id}', stream=True)
+    file_size = int(r.headers['content-length'])  # 文件大小 Byte
+    file_name = Downloader.get_headers_file_name(r.headers.get("Content-Disposition"))
+    while True:
+        # 拼接目录 子目录 文件名
+        file_path = os.path.abspath(os.path.join(data.dir_path, file_name))
+        if os.path.exists(file_path):
+            # 文件名重复则添加一个#
+            file_name_no_ext = file_name[0:file_name.rfind('.')]
+            file_ext = file_name[file_name.rfind('.') + 1:]
+            file_name = f"{file_name_no_ext}#.{file_ext}"
+        else:
+            break
+
+    background_tasks.add_task(Downloader.download_open_in_folder, file_path, r)
+    return success_info('开始下载！下载完成后将在文件夹显示', data={
+        'file_name': file_name,
+        'file_path': file_path,
+        'file_size': Downloader.byte_to_suitable_size(file_size)
+    })
+
+
+@router.get('/openFile/{file_id}')
+async def open_file(file_id: str):
+    try:
+        session = await User.get_login_session()
+        res = session.get(f'https://course2.xmu.edu.cn/meol/common/ckeditor/openfile.jsp?id={file_id}')
+
+        headers = dict(res.headers)
+        return Response(content=res.content, headers=headers)
+    except CourseHelperException as e:
+        logger.warning(f'打开资源失败 - 失败原因:{e}')
+        raise HTTPException(400, detail=error_info(e.data))
+    except Exception as e:
+        logger.debug(f'打开资源失败 e-{e}')
+        raise HTTPException(400, detail=error_info('打开资源失败'))
 
 
 def get_resource_in_folder(course_id, folder_id, s, deep_flag=False) -> list:

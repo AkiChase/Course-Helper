@@ -117,3 +117,9 @@ export default {
   opacity: 0;
 }
 </style>
+
+<style>
+.no-select {
+  user-select: none;
+}
+</style>

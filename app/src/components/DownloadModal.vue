@@ -1,7 +1,7 @@
 <template>
   <n-modal v-model:show="showModal" :on-after-leave="cancel">
     <n-card
-        style="width: 600px;position: relative"
+        style="width: 600px;position: relative;padding-bottom: 30px"
         :title="data.title"
         :bordered="false"
         size="huge"
@@ -21,9 +21,9 @@
             </n-button>
           </n-input-group>
         </n-form-item>
-        <n-form-item label="选项">
+        <n-form-item v-if="'options' in data.form" label="选项">
           <n-space>
-            <n-checkbox v-model:checked="data.form.treeFlag">
+            <n-checkbox v-model:checked="data.form.options.treeFlag">
               <n-tooltip trigger="hover">
                 <template #trigger>
                   保留目录结构
@@ -78,7 +78,7 @@ export default {
       },
       cancel() {
         if (resolveRef !== null) {
-          resolveRef.reject()
+          resolveRef.reject('退出下载界面')
           resolveRef = null
         }
       },

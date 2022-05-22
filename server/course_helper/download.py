@@ -22,7 +22,7 @@ class Downloader:
         return True
 
     @staticmethod
-    def _get_file_name(file_name_raw: str) -> str:
+    def get_headers_file_name(file_name_raw: str) -> str:
         file_name = (
             file_name_raw.encode("unicode_escape").decode("utf-8").replace("\\x", "%")
         )
@@ -31,7 +31,7 @@ class Downloader:
         return file_name[pos + len('filename="'): -1]
 
     @staticmethod
-    def _byte_to_suitable_size(byte_size: int):
+    def byte_to_suitable_size(byte_size: int):
         if byte_size <= 1024:
             return f'{byte_size}B'
         elif byte_size <= 1024 ** 2:
@@ -55,12 +55,12 @@ class Downloader:
                     f'https://course2.xmu.edu.cn/meol/common/script/download.jsp?fileid={file_id}&resid={res_id}',
                     stream=True) as r:
                 content_size = int(r.headers['content-length'])
-                file_name = cls._get_file_name(r.headers.get("Content-Disposition"))
+                file_name = cls.get_headers_file_name(r.headers.get("Content-Disposition"))
                 file_name_no_ext = file_name[0:file_name.rfind('.')]
 
                 file_ext = file_name[file_name.rfind('.') + 1:].lower()
                 file_name = f'{file_name_no_ext}.{file_ext}'
-                file_size = cls._byte_to_suitable_size(content_size)
+                file_size = cls.byte_to_suitable_size(content_size)
                 return {
                     'success': True,
                     'file_name': file_name,
@@ -83,7 +83,7 @@ class Downloader:
                 'download_id': download_id,
                 'speed': speed_str,
                 'time_remain': time_remain_str,
-                'down_size': cls._byte_to_suitable_size(down_size),
+                'down_size': cls.byte_to_suitable_size(down_size),
                 'down_size_raw': down_size
             }
         }, client_id=tuple(ConnectionManager.active_connections.keys())[0])
@@ -101,8 +101,8 @@ class Downloader:
             }
         }, client_id=tuple(ConnectionManager.active_connections.keys())[0])
 
-    @classmethod
-    def _download_file_dir_check(cls, file_path: str):
+    @staticmethod
+    def download_file_dir_check(file_path: str):
         dir_path = os.path.dirname(file_path)
         if not os.path.exists(dir_path):
             os.makedirs(dir_path)
@@ -141,7 +141,7 @@ class Downloader:
                 download_id = file_info['download_id']
 
                 # 检查path所在文件夹
-                cls._download_file_dir_check(file_info['path'])
+                cls.download_file_dir_check(file_info['path'])
                 with open(file_info['path'], "wb") as file:
                     down_size = 0  # 已下载字节数
                     old_down_size = 0  # 上一次已下载字节数
@@ -153,7 +153,7 @@ class Downloader:
                             if time.time() - now >= 0.5:  # 每0.5s计算一次下载速度
                                 speed = round((down_size - old_down_size) / 0.5)
                                 time_remain = round((file_size - down_size) / speed)
-                                speed_str = cls._byte_to_suitable_size(speed) + '/s'
+                                speed_str = cls.byte_to_suitable_size(speed) + '/s'
                                 time_remain_str = cls._sec_to_suitable_time(time_remain)
 
                                 # ws发送消息更新下载进度
@@ -169,3 +169,15 @@ class Downloader:
                 await asyncio.sleep(0.5)
 
         cls.running = False
+
+    @classmethod
+    async def download_open_in_folder(cls, file_path, res):
+        # 检查path所在文件夹
+        cls.download_file_dir_check(file_path)
+        with open(file_path, "wb") as file:
+            for chunk in res.iter_content(chunk_size=1024):  # 每次下载1B
+                if chunk:
+                    file.write(chunk)
+        res.close()
+
+        os.system(f'explorer /select, "{file_path}"')

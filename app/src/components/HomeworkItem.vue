@@ -1,8 +1,16 @@
 <template>
   <div class="homework-item">
     <div class="homework-title">
-      <div class="serial-num">#{{ no }}</div>
-      <n-ellipsis style="font-size: 18px">
+      <div :title="`作业ID: ${homework['hw_id']}`" class="enter" @click="toHomeworkDetail(homework['hw_id'])">
+        <n-button circle="" size="small">
+          <template #icon>
+            <n-icon>
+              <arrow-forward-outline/>
+            </n-icon>
+          </template>
+        </n-button>
+      </div>
+      <n-ellipsis style="font-size: 18px;max-width: 45vw">
         {{ homework.title }}
       </n-ellipsis>
     </div>
@@ -30,7 +38,7 @@
             <calendar-outline/>
           </n-icon>
         </template>
-        截止日期: {{ homework['end_data'] }}
+        截止日期: {{ homework['end_date'] }}
       </n-tooltip>
       <n-tooltip trigger="hover">
         <template #trigger>
@@ -45,16 +53,35 @@
 </template>
 
 <script>
-import {NEllipsis, NIcon, NSpace, NTooltip} from "naive-ui";
-import {PersonCircleOutline, CalendarOutline, RibbonOutline, PaperPlaneOutline} from "@vicons/ionicons5";
+import {NButton, NEllipsis, NIcon, NSpace, NTooltip} from "naive-ui";
+import {
+  PersonCircleOutline,
+  CalendarOutline,
+  RibbonOutline,
+  PaperPlaneOutline,
+  ArrowForwardOutline
+} from "@vicons/ionicons5";
+import {useStore} from "vuex";
 
 export default {
   name: "HomeworkItem",
   components: {
-    NEllipsis, NSpace, NIcon, NTooltip,
-    PersonCircleOutline, CalendarOutline, RibbonOutline, PaperPlaneOutline,
+    NEllipsis, NSpace, NIcon, NTooltip, NButton,
+    PersonCircleOutline, CalendarOutline, RibbonOutline, PaperPlaneOutline, ArrowForwardOutline
   },
-  props: ['homework', 'no']
+  props: ['homework', 'course'],
+  setup({course, homework}) {
+    const store = useStore()
+    return {
+      async toHomeworkDetail(hwId) {
+        await store.dispatch('addHomeworkTabs', {
+          ...homework,
+          courseName: course
+        })
+        setTimeout(() => window.$routerPush({name: 'homeworkDetails', params: {activeId: hwId}}), 200)
+      }
+    }
+  }
 }
 </script>
 
@@ -67,6 +94,7 @@ export default {
   padding: 5px 10px;
   margin: 5px 0;
   font-size: 20px;
+  cursor: pointer;
 }
 
 .homework-item:hover {
@@ -76,15 +104,20 @@ export default {
 .homework-title {
   display: flex;
   flex-direction: row;
-  align-items: center;
-  width: 70%;
+  align-items: start;
+  width: 75%;
 }
 
-.serial-num {
-  font-weight: bolder;
-  font-size: 15px;
-  color: #aaa;
+.enter {
   width: 45px;
+  height: 100%;
+  display: flex;
+  justify-content: left;
+  align-items: center;
+}
+
+.enter:hover {
+  color: red;
 }
 
 
