@@ -2,6 +2,32 @@
 
 [TOC]
 
+## 开始使用
+
+1. **下载**
+
+   Github Release: 	[CourseHelper v0.1.0](https://github.com/ruchuby/Course-Helper/releases/tag/v0.1.0)
+
+   蓝奏云:					[蓝奏云外链](https://wwi.lanzoup.com/b01ji7zne )  密码:fd85
+
+2. **安装**
+
+   解压后双击`CourseHelper Setup.exe`，安装到任意位置，安装完成后桌面可见快捷方式。
+
+3. **使用**
+
+   双击 `server.exe` 运行python后端
+
+   双击桌面快捷方式运行软件
+
+<img src="https://s2.loli.net/2022/05/22/7vx6qJmUDpPR8Eu.png" alt="img" style="zoom: 75%;border-radius:25px" />
+
+
+
+------
+
+
+
 ## 需求分析
 
 为进一步深化教育改革，加快我校优质教学资源的共建共享，我校引进了清华大学教育技术研究所研发的支撑教与学的网络支撑环境的综合平台，建立了厦门大学课程中心，即[couse平台](http://course.xmu.edu.cn/)。
