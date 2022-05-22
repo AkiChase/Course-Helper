@@ -18,7 +18,8 @@
             <n-skeleton v-if="loadingFlag" text="" :repeat="25"/>
             <div v-show="!loadingFlag">
               <div v-if="courseHomework.length">
-                <HomeworkItem class="no-select" v-for="item in courseHomework" :homework="item" :course="courseName"/>
+                <HomeworkItem class="no-select" v-for="item in courseHomework" :key="item['hw_id']" :homework="item"
+                              :course="courseName"/>
               </div>
               <n-empty style="margin-top: 15%" v-else size="huge" description="暂无作业信息"/>
             </div>

@@ -141,6 +141,8 @@ export default createStore({
             const index = state.homeworkTabs.findIndex(item => item['hw_id'] === data['hw_id'])
             if (index === -1) {
                 commit('ADD_HOMEWORK_TABS', {data})
+            } else {
+                console.log('已存在该课程', data['hw_id'])
             }
         },
         removeHomeworkTabs({commit, state}, hwId) {

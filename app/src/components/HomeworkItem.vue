@@ -78,7 +78,7 @@ export default {
           ...homework,
           courseName: course
         })
-        setTimeout(() => window.$routerPush({name: 'homeworkDetails', params: {activeId: hwId}}), 200)
+        await window.$routerPush({name: 'homeworkDetails', params: {activeId: hwId}})
       }
     }
   }

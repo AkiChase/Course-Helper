@@ -15,7 +15,7 @@
       <div class="course-container">
         <n-empty v-if="!courseList.length" size="huge" description="课程列表空空如也"></n-empty>
         <n-grid v-else class="course-list" :x-gap="15" :y-gap="15" cols="2 900:3 1200:4">
-          <n-grid-item v-for="(item, index) in courseList">
+          <n-grid-item v-for="(item, index) in courseList" :key="item['course_id']">
             <CourseItem :num="index+1" :info="item"/>
           </n-grid-item>
         </n-grid>

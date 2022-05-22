@@ -13,6 +13,7 @@
         >
           <n-tab-pane
               v-for="(data, index) in homeworkTabs"
+              :key="data['hw_id']"
               :tab="`作业${index+1}`"
               :name="data['hw_id']"
               display-directive="show:lazy"
