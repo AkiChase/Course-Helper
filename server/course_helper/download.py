@@ -16,13 +16,10 @@ class Downloader:
     running = False
 
     @staticmethod
-    def check_dir(dir_path):
-        if not os.path.exists(dir_path):
-            raise CourseHelperException(f'文件夹"{dir_path}"不存在')
-        return True
-
-    @staticmethod
     def get_headers_file_name(file_name_raw: str) -> str:
+        """
+        从请求头中获取文件名，修复中文乱码
+        """
         file_name = (
             file_name_raw.encode("unicode_escape").decode("utf-8").replace("\\x", "%")
         )
@@ -31,7 +28,10 @@ class Downloader:
         return file_name[pos + len('filename="'): -1]
 
     @staticmethod
-    def byte_to_suitable_size(byte_size: int):
+    def byte_to_suitable_size(byte_size: int) -> str:
+        """
+        字节大小转合适单位大小
+        """
         if byte_size <= 1024:
             return f'{byte_size}B'
         elif byte_size <= 1024 ** 2:
@@ -43,12 +43,15 @@ class Downloader:
 
     @staticmethod
     def _sec_to_suitable_time(sec: int):
+        """
+        秒转 时:分:秒
+        """
         return time.strftime("%H:%M:%S", time.gmtime(sec))
 
     @classmethod
     async def get_file_info(cls, session: Session, file_id, res_id):
         """
-        获取下载文件名、大小等信息
+        获取下载文件名、大小、后缀等信息
         """
         try:
             with session.get(
@@ -91,7 +94,7 @@ class Downloader:
     @classmethod
     async def _download_finished(cls, download_id: str):
         """
-        发送ws消息更新前端的下载进度
+        发送ws消息提示前端下载完毕
         """
         await ConnectionManager.send_message({
             'cmd': 'update_download_progress',
@@ -103,14 +106,17 @@ class Downloader:
 
     @staticmethod
     def download_file_dir_check(file_path: str):
+        """
+        检查下载文件夹是否存在，不存在则递归创建
+        """
         dir_path = os.path.dirname(file_path)
         if not os.path.exists(dir_path):
             os.makedirs(dir_path)
 
     @classmethod
-    async def download_file(cls, download_id: str, file_id: str, res_id: str, path: str):
+    async def add_download_task(cls, download_id: str, file_id: str, res_id: str, path: str):
         """
-        提交下载任务到队列
+        提交下载任务到队列（生产者）
         """
         cls.file_queue.put({
             'download_id': download_id,
@@ -118,11 +124,15 @@ class Downloader:
             'res_id': res_id,
             'path': path
         })
-        # 开启下载队列，不等待结果
+        # 开启下载队列（通知消费者）
         asyncio.Task(cls.run())
 
     @classmethod
     async def run(cls):
+        """
+        开启下载队列（消费者）
+        :return:
+        """
         # 判断队列是否已在下载
         if cls.running:
             return
@@ -172,6 +182,10 @@ class Downloader:
 
     @classmethod
     async def download_open_in_folder(cls, file_path, res):
+        """
+        下载响应内容为文件，下载完毕后在文件夹打开
+        """
+
         # 检查path所在文件夹
         cls.download_file_dir_check(file_path)
         with open(file_path, "wb") as file:

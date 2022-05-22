@@ -37,8 +37,7 @@ async def __init():
 @router.get('/getCourseList')
 async def get_course_list():
     """
-    获取基本信息
-    用户基本信息、课程列表
+    获取课程列表
     """
     try:
         session = await User.get_login_session()
@@ -137,6 +136,9 @@ async def get_course_homework(course_id: str):
 
 @router.get('/getHomeworkDetails/{hw_id}')
 async def get_homework_details(hw_id: str):
+    """
+    获取作业详情
+    """
     try:
         session = await User.get_login_session()
         res = session.get(f'https://course2.xmu.edu.cn/meol/common/hw/student/taskanswer.jsp?hwtid={hw_id}')
@@ -189,7 +191,7 @@ async def get_homework_details(hw_id: str):
 @router.get('/getCourseResource/{course_id}')
 async def get_course_resource(course_id: str, folder_id: str = '0', deep: bool = False):
     """
-    获取课程资源
+    获取课程资源树状结构
     """
     try:
         session = await User.get_login_session()
@@ -210,7 +212,7 @@ async def get_course_resource(course_id: str, folder_id: str = '0', deep: bool =
 @router.get('/getCourseResourceInfo')
 async def get_course_resource_info(file_id: str, res_id: str):
     """
-    获取课程资源信息
+    获取课程资源信息: 文件名、文件大小
     """
     try:
         session = await User.get_login_session()
@@ -235,10 +237,9 @@ async def get_course_resource_info(file_id: str, res_id: str):
 @router.post('/downloadCourseFiles')
 async def download_course_files(data: DownloadFilesModel, background_tasks: BackgroundTasks):
     """
-    下载文件
+    下载课程资源文件
     """
     try:
-        Downloader.check_dir(data.dir_path)  # 检查文件夹是否存在
         session = await User.get_login_session()
 
         file_list = data.file_list
@@ -261,7 +262,7 @@ async def download_course_files(data: DownloadFilesModel, background_tasks: Back
                 file_info['download_id'] = download_id
                 file_info['file_path'] = file_path
                 # 提交BackgroundTasks 避免阻塞当前进程
-                background_tasks.add_task(Downloader.download_file, download_id, item.file_id, item.res_id, file_path)
+                background_tasks.add_task(Downloader.add_download_task(), download_id, item.file_id, item.res_id, file_path)
                 download_info.append(file_info)
                 logger.success(f'下载任务创建成功 download_id:{download_id} size:{file_info["file_size"]} path:{file_path}')
                 # 降低请求频率
@@ -284,6 +285,12 @@ class DownloadModel(BaseModel):
 
 @router.post('/downloadFile')
 async def download_file(data: DownloadModel, background_tasks: BackgroundTasks):
+    """
+    下载course网站内openfile指向的文件
+    :param data:
+    :param background_tasks:
+    :return:
+    """
     s = await User.get_login_session()
     r = s.get(f'https://course2.xmu.edu.cn/meol/common/ckeditor/openfile.jsp?id={data.file_id}', stream=True)
     file_size = int(r.headers['content-length'])  # 文件大小 Byte
@@ -309,6 +316,11 @@ async def download_file(data: DownloadModel, background_tasks: BackgroundTasks):
 
 @router.get('/openFile/{file_id}')
 async def open_file(file_id: str):
+    """
+    转发course网站内openfile指向的文件请求（用于显示图片）
+    :param file_id:
+    :return:
+    """
     try:
         session = await User.get_login_session()
         res = session.get(f'https://course2.xmu.edu.cn/meol/common/ckeditor/openfile.jsp?id={file_id}')
@@ -324,6 +336,9 @@ async def open_file(file_id: str):
 
 
 def get_resource_in_folder(course_id, folder_id, s, deep_flag=False) -> list:
+    """
+    递归获取课程资源树状结构
+    """
     res = s.get(f'https://course2.xmu.edu.cn/meol/common/script/listview.jsp?folderid={folder_id}&lid={course_id}')
     html = etree.HTML(res.text)
     nodes: list = html.xpath("//table[@class='valuelist']//tr")
@@ -347,14 +362,3 @@ def get_resource_in_folder(course_id, folder_id, s, deep_flag=False) -> list:
             res_obj['file_id'], res_obj['res_id'] = re.search(r'fileid=(\d*).*?resid=(\d*)', res_url).group(1, 2)
         content.append(res_obj)
     return content
-
-
-class T(BaseModel):
-    url: str
-
-
-@router.post('/getTest')
-async def test(t: T):
-    s = await User.get_login_session()
-    res = s.get(url=t.url)
-    return res.text
