@@ -10,6 +10,7 @@ sys.path.append(os.path.split(os.path.abspath(os.path.dirname(__file__)))[0])
 
 from course_helper.routers import user, websocket, course
 
+os.system('')  # 神奇地修复了CMD下颜色乱码的问题
 app = FastAPI()
 
 # 设置允许访问的域名
