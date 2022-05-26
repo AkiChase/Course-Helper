@@ -5,6 +5,7 @@ import {createProtocol} from 'vue-cli-plugin-electron-builder/lib'
 import path from 'path'
 
 import ipcHelper from "@/utils/ipcHelper"
+import open from "open";
 
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
@@ -54,8 +55,11 @@ app.on('activate', () => {
 })
 
 app.on('ready', () => {
-    createWindow().then(() => {
+    createWindow().then(async () => {
         ipcHelper(win)
+        const serverPath = isDevelopment ?
+            path.join(__dirname, "../../server/dist/server.exe") : path.join(process.cwd(), "/resources/server.exe")
+        await open.openApp(serverPath, {arguments: ['start']})
     })
 })
 

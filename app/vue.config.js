@@ -7,15 +7,22 @@ module.exports = defineConfig({
             builderOptions: {
                 "appId": "com.ruchuby.course",
                 "productName": "CourseHelper",
+                "extraResources":[{
+                    "from": "../server/dist/server.exe",
+                    "to": "./server.exe",
+                    "filter": ["**/*", "!foo/*.js"]
+                }],
                 "win": {
-                    "icon": "dist_electron/icons/logo.ico"
+                    "icon": "dist_electron/icons/icon.png"
                 },
                 "nsis": {
                     "oneClick": false,
-                    "perMachine": true,
                     "allowElevation": true,
                     "allowToChangeInstallationDirectory": true,
-                    "createDesktopShortcut": true
+                    "deleteAppDataOnUninstall":true,
+                    "shortcutName":'course助手',
+                    "installerIcon":'dist_electron/icons/installer.ico',
+                    "uninstallerIcon":'dist_electron/icons/uninstaller.ico'
                 }
             }
         }

@@ -20,13 +20,25 @@
       <cloud-download-outline/>
     </nav-button>
 
-    <n-icon v-show="connectState" title="服务已连接" class="conn-state" size="30">
-      <Link/>
-    </n-icon>
+    <n-tooltip trigger="hover">
+      <template #trigger>
+        <n-icon @click="devTools" class="dev-tools" size="30">
+          <tool/>
+        </n-icon>
+      </template>
+      开发者工具
+    </n-tooltip>
 
-    <n-icon v-show="!connectState" title="服务已断开" class="conn-state" size="30">
-      <unlink/>
-    </n-icon>
+    <n-tooltip trigger="hover">
+      <template #trigger>
+        <n-icon :color="connectState?'#ffffff':'#f38181'" @click="showServerModal" title="服务已连接" class="conn-state"
+                size="30">
+          <Link v-show="connectState"/>
+          <unlink v-show="!connectState"/>
+        </n-icon>
+      </template>
+      服务已{{ connectState ? '连接' : '断开' }}
+    </n-tooltip>
 
     <n-switch v-model:value="darkThemeFlag" size="large" style="position: absolute; bottom: 20px">
       <template #checked-icon>
@@ -36,11 +48,32 @@
         <n-icon :component="Sunny"/>
       </template>
     </n-switch>
+
+    <n-modal v-model:show="showModal">
+      <n-card
+          style="width: 600px"
+          title="后台服务管理"
+          :bordered="false"
+          size="huge"
+          role="dialog"
+          aria-modal="true"
+      >
+        <div style="text-align: center">
+          <h3>状态：已{{ connectState ? '连接' : '断开' }}</h3>
+          <n-space :size="30" justify="center">
+            <n-button @click="server('start')">启动服务</n-button>
+            <n-button @click="server('stop')">停止服务</n-button>
+            <n-button @click="server('restart')">重启服务</n-button>
+          </n-space>
+        </div>
+      </n-card>
+    </n-modal>
+
   </div>
 </template>
 
 <script>
-import {NIcon, NSwitch} from "naive-ui";
+import {NButton, NCard, NIcon, NModal, NSpace, NSwitch, NTooltip} from "naive-ui";
 import Login from "@/views/Login";
 import NavButton from "@/components/NavButton";
 import {
@@ -53,18 +86,20 @@ import {
   Sunny
 } from "@vicons/ionicons5";
 import {useStore} from "vuex";
-import {computed} from "vue";
-import {Link, Unlink} from "@vicons/tabler";
+import {computed, ref} from "vue";
+import {Link, Tool, Unlink} from "@vicons/tabler";
 
 export default {
   name: "NavigationBar",
   components: {
     Login,
     Sunny, Moon, PersonCircleOutline, Link, Unlink, BookOutline, ListOutline, DocumentTextOutline, CloudDownloadOutline,
-    NavButton, NSwitch, NIcon
+    Tool,
+    NavButton, NSwitch, NIcon, NTooltip, NModal, NCard, NSpace, NButton
   },
   setup() {
     const store = useStore()
+    const showModal = ref(false)
 
     const connectState = computed(() => store.state.connectState)
 
@@ -80,7 +115,27 @@ export default {
     return {
       darkThemeFlag,
       connectState,
-      Sunny, Moon
+      showModal,
+      Sunny, Moon,
+      showServerModal() {
+        showModal.value = true
+      },
+      devTools() {
+        window.$electron.win.devTools()
+      },
+      server(state) {
+        switch (state) {
+          case 'start':
+            window.$electron.utils.server('start')
+            break
+          case 'stop':
+            window.$electron.utils.server('stop')
+            break
+          case 'restart':
+            window.$electron.utils.server('restart')
+            break
+        }
+      }
     }
   }
 }
@@ -108,8 +163,10 @@ export default {
   color: white;
 }
 
-.conn-state[title='服务已断开'] {
-  color: #f38181;
+.dev-tools {
+  position: absolute;
+  bottom: 115px;
+  color: white;
 }
 
 </style>
