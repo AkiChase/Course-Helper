@@ -17,6 +17,7 @@
     "axios": "^0.27.2",
     "core-js": "^3.8.3",
     "electron-store": "^8.0.1",
+    "open": "^8.4.0",
     "vue": "^3.2.13",
     "vue-router": "^4.0.3",
     "vuex": "^4.0.0"
@@ -30,6 +31,7 @@
     "@vue/cli-plugin-vuex": "~5.0.0",
     "@vue/cli-service": "~5.0.0",
     "electron": "13.0.0",
+    "electron-builder": "^23.0.3",
     "electron-devtools-installer": "^3.1.0",
     "naive-ui": "^2.28.2",
     "vue-cli-plugin-electron-builder": "^2.1.1"

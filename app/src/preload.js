@@ -11,6 +11,7 @@ contextBridge.exposeInMainWorld('$electron', {
             minimize: () => ipcRenderer.send('win:minimize'),
             maximize: () => ipcRenderer.send('win:maximize'),
             close: () => ipcRenderer.send('win:close'),
+            devTools: () => ipcRenderer.send('win:devTools'),
         },
         store: {
             set: (key, val) => electronStore.set(key, val),
@@ -26,8 +27,9 @@ contextBridge.exposeInMainWorld('$electron', {
                 return finalPath
             },
             fExists: (path) => fs.existsSync(path),
+            server: async (cmd) => await ipcRenderer.invoke('open:server', cmd),
             shell: {
-                showItemInFolder: async (path) => await ipcRenderer.invoke('shell:showItemInFolder', path)
+                showItemInFolder: async (path) => await ipcRenderer.invoke('shell:showItemInFolder', path),
             },
             app: {
                 getPath: async (name) => await ipcRenderer.invoke('app:getPath', name),
