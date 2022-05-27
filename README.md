@@ -4,9 +4,11 @@
 
 [TOC]
 
-<img src="https://s2.loli.net/2022/05/22/7vx6qJmUDpPR8Eu.png" alt="软件界面" style="zoom: 75%;border-radius:25px" />
+<img src="https://s2.loli.net/2022/05/22/7vx6qJmUDpPR8Eu.png" alt="Electron前端" style="zoom: 75%;border-radius:25px" />
 
 
+
+<img src="https://s2.loli.net/2022/05/27/uQopRajxcXGy9H6.png" alt="python后端" style="zoom: 75%;border-radius:25px"  />
 
 
 
