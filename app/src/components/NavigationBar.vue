@@ -31,7 +31,7 @@
 
     <n-tooltip trigger="hover">
       <template #trigger>
-        <n-icon :color="connectState?'#ffffff':'#f38181'" @click="showServerModal" title="服务已连接" class="conn-state"
+        <n-icon :color="connectState?'#ffffff':'#f38181'" @click="showServerModal" class="conn-state"
                 size="30">
           <Link v-show="connectState"/>
           <unlink v-show="!connectState"/>

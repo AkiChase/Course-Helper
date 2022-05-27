@@ -4,6 +4,12 @@
 
 [TOC]
 
+<img src="https://s2.loli.net/2022/05/22/7vx6qJmUDpPR8Eu.png" alt="软件界面" style="zoom: 75%;border-radius:25px" />
+
+
+
+
+
 ## 开始使用
 
 1. **下载**
@@ -14,15 +20,27 @@
 
 2. **安装**
 
-   解压后双击`CourseHelper Setup.exe`，安装到任意位置，安装完成后桌面可见快捷方式。
+   解压后双击`CourseHelper Setup.exe`，安装到任意位置
 
 3. **使用**
 
-   双击 `server.exe` 运行python后端
+   双击桌面快捷方式，启动软件
 
-   双击桌面快捷方式运行软件
+   
+   
+   软件启动时会尝试启动后端服务（黑框框）
+   
+   **启动失败**，请尝试在软件内启动后端，操作如下图
+   
+   
+   
+   <img src="https://s2.loli.net/2022/05/27/KqeWcuQGavVgDnM.png" alt="启动后端步骤" style="zoom:50%;" />
+   
+   
+   
+   **若仍启动失败**，请手动运行`xxx安装目录\resources\server.exe`
 
-<img src="https://s2.loli.net/2022/05/22/7vx6qJmUDpPR8Eu.png" alt="img" style="zoom: 75%;border-radius:25px" />
+
 
 
 
