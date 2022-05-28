@@ -1,13 +1,13 @@
 <template>
-  <div class="main" style="background-color: #4daf7c">
+  <div class="main no-select" style="background-color: #4daf7c">
     <div class="logo">
-      <img src="../assets/logo.png" alt=""/>
+      <img class="no-drag" src="../assets/logo.png" alt=""/>
     </div>
 
     <nav-button :to="{name:'login'}">
       <person-circle-outline/>
     </nav-button>
-    <nav-button :to="{name:'home'}">
+    <nav-button :to="{name:'courseList'}">
       <list-outline/>
     </nav-button>
     <nav-button :to="{name:'course'}">
@@ -49,17 +49,17 @@
       </template>
     </n-switch>
 
-    <n-modal v-model:show="showModal">
+    <n-modal class="no-select" v-model:show="showModal">
       <n-card
           style="width: 600px"
-          title="后台服务管理"
+          title="后端服务管理"
           :bordered="false"
           size="huge"
           role="dialog"
           aria-modal="true"
       >
         <div style="text-align: center">
-          <h3>状态：已{{ connectState ? '连接' : '断开' }}</h3>
+          <div style="font-size: 20px; font-weight: bolder;margin-bottom: 25px">服务已{{ connectState ? '连接' : '断开' }}</div>
           <n-space :size="30" justify="center">
             <n-button @click="server('start')">启动服务</n-button>
             <n-button @click="server('stop')">停止服务</n-button>

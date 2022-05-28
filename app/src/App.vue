@@ -29,6 +29,8 @@ import wsHelper from "@/utils/wsHelper";
 import {darkTheme, NConfigProvider, NDialogProvider, NGi, NGrid, NLoadingBarProvider, NMessageProvider} from "naive-ui";
 import {computed, watch} from "vue";
 import {useStore} from "vuex";
+import "@/style/scrollbar.css";
+import "@/style/common.css"
 
 
 export default {
@@ -69,7 +71,7 @@ export default {
 
     return {
       theme,
-      keepAlive: ['Home', 'Login', 'Course', 'HomeworkDetails', 'Download']
+      keepAlive: ['CourseList', 'Login', 'Course', 'HomeworkDetails', 'Download']
     }
   }
 }
@@ -114,11 +116,5 @@ export default {
 
 .fade-enter, .fade-leave-to {
   opacity: 0;
-}
-</style>
-
-<style>
-.no-select {
-  user-select: none;
 }
 </style>

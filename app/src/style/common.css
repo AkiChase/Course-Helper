@@ -1,0 +1,11 @@
+.no-select {
+    user-select: none;
+}
+
+.no-drag {
+    -webkit-user-drag: none;
+}
+
+div.n-empty__description{
+    user-select: none;
+}
