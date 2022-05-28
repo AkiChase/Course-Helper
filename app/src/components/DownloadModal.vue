@@ -1,5 +1,5 @@
 <template>
-  <n-modal v-model:show="showModal" :on-after-leave="cancel">
+  <n-modal class="no-select" v-model:show="showModal" :on-after-leave="cancel">
     <n-card
         style="width: 600px;position: relative;padding-bottom: 30px"
         :title="data.title"

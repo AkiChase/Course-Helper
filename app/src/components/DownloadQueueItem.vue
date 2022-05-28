@@ -1,7 +1,7 @@
 <template>
   <div class="main">
     <div class="img-box">
-      <img :src="item.fileImg" :alt="item.fileName">
+      <img class="no-drag" :src="item.fileImg" :alt="item.fileName">
     </div>
     <div class="content">
       <n-ellipsis

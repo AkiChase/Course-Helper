@@ -1,7 +1,7 @@
 <template>
   <div class="main">
     <n-card v-show="!loginState" hoverable="" class="card">
-      <LoginForm/>
+      <LoginForm class="no-select"/>
     </n-card>
     <UserInfo :words="words" :userInfo="userInfo" v-show="loginState"/>
   </div>

@@ -34,7 +34,8 @@
       </n-button>
     </div>
     <div :id="`hw${hwId}`" class="main-content scrollbar">
-      <n-card :bordered="false" embedded="" v-for="(type, index) in types" :key="type" :title="typeName[index]">
+      <n-card :bordered="false" embedded="" v-for="(type, index) in types" :id="type" :key="type"
+              :title="typeName[index]">
         <n-empty v-if="emptyFlag[type]" description="空空如也"/>
         <div v-show="!emptyFlag[type]" :class="type"></div>
       </n-card>
@@ -45,6 +46,8 @@
 <script>
 
 import {
+  NAnchor,
+  NAnchorLink,
   NButton,
   NCard,
   NDescriptions,
