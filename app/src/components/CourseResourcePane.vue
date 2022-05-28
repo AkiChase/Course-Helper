@@ -37,6 +37,8 @@
           @update:checked-keys="handleCheckedKeysChange"
           @update:expanded-keys="handleExpandedKeysChange"
 
+          virtual-scroll=""
+          style="height: 45vh"
           check-strategy="child"
           label-field="res_name"
           block-line=""
@@ -219,7 +221,6 @@ export default {
         })
       })
     }
-
     function findNode(tree, key) {
       if (tree.key === key) {
         return {path: [], node: tree}
@@ -369,6 +370,8 @@ export default {
         })
       },
       preLoad(courseId) {
+        // 重置已选资源
+        checkedKeys.value = []
         return load(courseId, 0).then(res => {
           data.value = res
         })
