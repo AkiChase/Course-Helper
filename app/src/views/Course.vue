@@ -6,8 +6,13 @@
       </n-h1>
 
       <n-card>
-        <n-tabs v-model:value="activeTabName" type="line" animated=""
-                pane-class="scrollbar" justify-content="space-evenly">
+        <n-tabs
+            v-model:value="activeTabName"
+            type="line"
+            animated=""
+            tab-style="user-select: none"
+            pane-class="scrollbar"
+            justify-content="space-evenly">
           <n-tab-pane display-directive="show" :name="1" tab="课程介绍">
             <n-skeleton v-if="loadingFlag" text="" :repeat="25"/>
             <div v-show="!loadingFlag" id="course-intro">
@@ -61,7 +66,6 @@ import {
 } from "naive-ui";
 import api from "@/utils/api";
 import {onActivated, ref} from "vue";
-import "@/style/scrollbar.css";
 import {Refresh} from "@vicons/ionicons5";
 import {useRoute} from "vue-router";
 import common from "@/utils/common";

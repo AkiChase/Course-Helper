@@ -1,7 +1,7 @@
 <template>
   <div class="main">
     <div class="img-box">
-      <img :style="item.state==='removed'?'filter: grayscale(80%);':''" :src="item.fileImg" :alt="item.fileName">
+      <img class="no-drag" :style="item.state==='removed'?'filter: grayscale(80%);':''" :src="item.fileImg" :alt="item.fileName">
     </div>
     <div class="content">
       <n-ellipsis

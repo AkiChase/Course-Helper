@@ -1,8 +1,8 @@
 <template>
   <div class="main">
     <n-spin class="spin-height" :show="loadingFlag">
-      <n-h1 prefix="bar">
-        <n-text>课程列表</n-text>
+      <n-h1 class="no-select" prefix="bar">
+        课程列表
         <n-button @click="getCourseList" style="margin-left: 15px" circle="" size="large">
           <template #icon>
             <n-icon>
@@ -26,7 +26,7 @@
 
 <script>
 import {onMounted, ref, watch} from "vue";
-import {NButton, NEmpty, NGrid, NGridItem, NH1, NIcon, NSpin, NText, useMessage} from "naive-ui";
+import {NButton, NEmpty, NGrid, NGridItem, NH1, NIcon, NSpin, useMessage} from "naive-ui";
 import {Refresh} from "@vicons/ionicons5";
 import CourseItem from "@/components/CourseItem";
 import {useStore} from "vuex";
@@ -34,9 +34,9 @@ import api from "@/utils/api";
 import common from "@/utils/common";
 
 export default {
-  name: "Home",
+  name: "CourseList",
   components: {
-    NIcon, NButton, NGrid, NGridItem, NH1, NText, NSpin, NEmpty,
+    NIcon, NButton, NGrid, NGridItem, NH1, NSpin, NEmpty,
     Refresh,
     CourseItem
   },

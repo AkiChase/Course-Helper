@@ -1,5 +1,5 @@
 <template>
-  <n-thing class="course">
+  <n-thing @dblclick="toCourse(info['course_id'], info['name'])" class="course">
     <template #avatar>
       <n-space style="height: 100%" align="center">
         <n-button @click="toCourse(info['course_id'], info['name'])" title="进入课程" circle="">
@@ -17,7 +17,7 @@
       </n-ellipsis>
     </template>
     <template #header-extra>
-      <span class="num"># {{ num }}</span>
+      <span class="num no-select"># {{ num }}</span>
     </template>
     <template #description>
       <n-ellipsis style="max-width: 200px">

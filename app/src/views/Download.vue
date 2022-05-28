@@ -4,9 +4,12 @@
       <n-text>下载管理</n-text>
     </n-h1>
     <n-card>
-      <n-tabs justify-content="space-evenly" type="line">
+      <n-tabs
+          justify-content="space-evenly"
+          tab-style="user-select: none"
+          type="line">
         <n-tab-pane name="downloadQueue" tab="下载中">
-          <div v-if="downloadQueue.length" class="list">
+          <div v-if="downloadQueue.length" class="list no-select">
             <DownloadQueueItem v-for="item in downloadQueue" :item="item" :key="item.downloadId"/>
           </div>
           <n-empty style="margin-top: 15%" v-else size="large" description="下载队列空荡荡"/>
@@ -25,7 +28,7 @@
               </template>
               清空下载记录
             </n-tooltip>
-            <div class="list">
+            <div class="list no-select">
               <DownloadRecordsItem v-for="item in downloadRecords" :item="item" :key="item.downloadId"/>
             </div>
           </template>
