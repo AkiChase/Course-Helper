@@ -221,6 +221,7 @@ export default {
         })
       })
     }
+
     function findNode(tree, key) {
       if (tree.key === key) {
         return {path: [], node: tree}
@@ -324,8 +325,10 @@ export default {
           })
         })
 
+        let msg = null
         if (fileList.length > 5) {
-          common.sendMsg(message, '下载文件数量较多(>5)，请耐心等待', 'info')
+          msg = common.sendMsg(message, `下载文件数量较多，预计 ${fileList.length}×0.5 = ${fileList.length * 0.5}s 后开始下载，请耐心等待`
+              , 'loading', 0)
         }
 
         common.showLoading(loadingFlag)
@@ -333,10 +336,13 @@ export default {
           file_list: fileList,
           dir_path: dirPath
         }, fileList.length * 1000).then(res => {
+          msg?.destroy()
           store.dispatch('push_download_queue', res.data)
           common.sendMsg(message, res.msg, 'success')
           common.hideLoading(loadingFlag)
+          window.$routerPush({name: 'download'})
         }).catch(err => {
+          msg?.destroy()
           common.sendMsg(message, err, 'error')
           common.hideLoading(loadingFlag)
         })

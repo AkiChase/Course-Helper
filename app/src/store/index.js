@@ -102,6 +102,19 @@ export default createStore({
                 }
                 commit('ADD_DOWNLOAD_RECORDS', {data: [record]}) // 添加到下载记录
                 return record.fileName
+            } else if ('error' in data) {
+                commit('SPLICE_DOWNLOAD_QUEUE', {index}) //从下载队列删除
+                record = {
+                    state: 'error',
+                    fileName: record.fileName,
+                    filePath: record.filePath,
+                    fileExt: record.fileExt,
+                    fileSize: record.fileSize,
+                    fileSizeRaw: record.fileSizeRaw,
+                    downloadId: record.downloadId,
+                }
+                commit('ADD_DOWNLOAD_RECORDS', {data: [record]}) // 添加到下载记录
+                return record.fileName
             } else {
                 record.state = 'downloading'
                 record = {
@@ -157,7 +170,7 @@ export default createStore({
                     ...data
                 }
                 commit('SET_HOMEWORK_TABS', {index, data: homeworkTab}) //更新下载队列中下载进度
-            }else {
+            } else {
                 console.log('未找到此id作业', hwId)
             }
 

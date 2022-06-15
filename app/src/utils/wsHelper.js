@@ -10,6 +10,12 @@ const cmd = {
                 finished: true
             })
             that.sendMsg(`下载成功: ${res}`, 'success')
+        } else if ('error' in params) {
+            const res = await store.dispatch('updateDownloadProgress', {
+                downloadId: params['download_id'],
+                error: true
+            })
+            that.sendMsg(`下载失败: ${res}`, 'error')
         } else {
             return store.dispatch('updateDownloadProgress', {
                 downloadId: params['download_id'],

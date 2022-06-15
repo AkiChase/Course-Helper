@@ -1,7 +1,8 @@
 <template>
   <div class="main">
     <div class="img-box">
-      <img class="no-drag" :style="item.state==='removed'?'filter: grayscale(80%);':''" :src="item.fileImg" :alt="item.fileName">
+      <img class="no-drag" :style="item.state==='removed'?'filter: grayscale(80%);':''" :src="item.fileImg"
+           :alt="item.fileName">
     </div>
     <div class="content">
       <n-ellipsis
@@ -10,7 +11,7 @@
       </n-ellipsis>
       <div class="info">
         <div>{{ item.fileSize }}</div>
-        <div>{{ item.state in state ? state[item.state] : '文件状态未知' }}</div>
+        <div :class="item.state">{{ item.state in state ? state[item.state] : '文件状态未知' }}</div>
       </div>
     </div>
     <div class="btn-group">
@@ -61,11 +62,11 @@ export default {
   props: ['item'],
   setup({item}) {
     const store = useStore()
-
     return {
       state: {
         'finished': '文件已下载',
-        'removed': '文件已移除'
+        'removed': '文件已移除',
+        'error': '下载失败'
       },
       showFileInFolder() {
         window.$electron.utils.shell.showItemInFolder(item.filePath)
@@ -111,6 +112,10 @@ export default {
 
 .content .info > div {
   margin-right: 10%;
+}
+
+.content .info .error{
+  color: #c12c1f;
 }
 
 .img-box {

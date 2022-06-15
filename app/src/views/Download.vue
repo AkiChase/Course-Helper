@@ -80,7 +80,9 @@ export default {
     const downloadRecords = computed(() => {
       const records = store.state.downloadRecords
       records.forEach(async (item) => {
-        if (!window.$electron.utils.fExists(item.filePath)) item.state = 'removed'
+        if (item.state !== 'error') {
+          if (!window.$electron.utils.fExists(item.filePath)) item.state = 'removed'
+        }
 
         if (item.fileExt !== 'exe') {
           const ext = item.fileExt
@@ -91,7 +93,7 @@ export default {
           item.fileImg = await window.$electron.utils.app.getFileIcon(filePath)
         }
       })
-      return records
+      return [...records].reverse()
     })
 
     return {
