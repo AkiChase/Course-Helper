@@ -28,6 +28,8 @@ import NavigationBar from "@/components/NavigationBar";
 import wsHelper from "@/utils/wsHelper";
 import {darkTheme, NConfigProvider, NDialogProvider, NGi, NGrid, NLoadingBarProvider, NMessageProvider} from "naive-ui";
 import {computed, watch} from "vue";
+import {Boot} from '@wangeditor/editor'
+import attachmentModule from '@wangeditor/plugin-upload-attachment'
 import {useStore} from "vuex";
 import "@/style/scrollbar.css";
 import "@/style/common.css"
@@ -43,6 +45,9 @@ export default {
   setup() {
     const store = useStore()
     const theme = computed(() => store.state.themeValue === 'darkTheme' ? darkTheme : null)
+
+    //文件上传插件
+    Boot.registerModule(attachmentModule)
 
     wsHelper.connect()
     wsHelper.injectCallback(
