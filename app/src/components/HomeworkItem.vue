@@ -69,14 +69,15 @@ export default {
     NEllipsis, NSpace, NIcon, NTooltip, NButton,
     PersonCircleOutline, CalendarOutline, RibbonOutline, PaperPlaneOutline, ArrowForwardOutline
   },
-  props: ['homework', 'course'],
-  setup({course, homework}) {
+  props: ['homework', 'courseName', 'courseId'],
+  setup({homework, courseName, courseId}) {
     const store = useStore()
     return {
       async toHomeworkDetail(hwId) {
         await store.dispatch('addHomeworkTabs', {
           ...homework,
-          courseName: course
+          courseName,
+          courseId
         })
         await window.$routerPush({name: 'homeworkDetails', params: {activeId: hwId}})
       }

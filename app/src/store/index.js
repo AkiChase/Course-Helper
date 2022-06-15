@@ -61,6 +61,9 @@ export default createStore({
         ADD_HOMEWORK_TABS(state, payload) {
             state.homeworkTabs.push(payload.data)
         },
+        SET_HOMEWORK_TABS(state, payload) {
+            state.homeworkTabs[payload.index] = payload.data
+        },
         SPLICE_HOMEWORK_TABS(state, payload) {
             if ('index' in payload) {
                 state.homeworkTabs.splice(payload.index, 1)
@@ -144,6 +147,20 @@ export default createStore({
             } else {
                 console.log('已存在该课程', data['hw_id'])
             }
+        },
+        updateHomeworkTabs({commit, state}, {hwId, data}) {
+            const index = state.homeworkTabs.findIndex(item => item['hw_id'] === hwId)
+            if (index !== -1) {
+                let homeworkTab = state.homeworkTabs[index]
+                homeworkTab = {
+                    ...homeworkTab,
+                    ...data
+                }
+                commit('SET_HOMEWORK_TABS', {index, data: homeworkTab}) //更新下载队列中下载进度
+            }else {
+                console.log('未找到此id作业', hwId)
+            }
+
         },
         removeHomeworkTabs({commit, state}, hwId) {
             const index = state.homeworkTabs.findIndex(item => item['hw_id'] === hwId)

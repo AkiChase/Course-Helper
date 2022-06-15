@@ -16,7 +16,6 @@
               :key="data['hw_id']"
               :tab="`作业${index+1}`"
               :name="data['hw_id']"
-              display-directive="show:lazy"
           >
             <HomeworkDetailsItem @download-modal="downloadFile" @show-hide-loading="showHideLoading" :data="data"/>
           </n-tab-pane>
@@ -59,8 +58,6 @@ export default {
         dirPath: '',
       }
     })
-
-
     const homeworkTabs = computed(() => store.state.homeworkTabs)
 
     onActivated(() => {
@@ -99,7 +96,7 @@ export default {
           const dirPath = downloadModalData.value.form.dirPath
 
           common.showLoading(loadingFlag)
-          api.post('http://127.0.0.1:6498/course/downloadFile', {
+          api.post('http://127.0.0.1:6498/file/downloadFile', {
             file_id: fId,
             dir_path: dirPath
           }).then(res => {

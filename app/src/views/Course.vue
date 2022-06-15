@@ -24,7 +24,7 @@
             <div v-show="!loadingFlag">
               <div v-if="courseHomework.length">
                 <HomeworkItem class="no-select" v-for="item in courseHomework" :key="item['hw_id']" :homework="item"
-                              :course="courseName"/>
+                              :courseName="courseName" :courseId="courseId"/>
               </div>
               <n-empty style="margin-top: 15%" v-else size="huge" description="暂无作业信息"/>
             </div>

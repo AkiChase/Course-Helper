@@ -262,7 +262,7 @@ export default {
           }
 
           common.showLoading(loadingFlag)
-          api.post('http://127.0.0.1:6498/course/downloadCourseFiles', {
+          api.post('http://127.0.0.1:6498/course/downloadCourseResource', {
             file_list: [{
               file_id: itemInfo.file_id,
               res_id: itemInfo.res_id,
@@ -329,7 +329,7 @@ export default {
         }
 
         common.showLoading(loadingFlag)
-        api.post('http://127.0.0.1:6498/course/downloadCourseFiles', {
+        api.post('http://127.0.0.1:6498/course/downloadCourseResource', {
           file_list: fileList,
           dir_path: dirPath
         }, fileList.length * 1000).then(res => {

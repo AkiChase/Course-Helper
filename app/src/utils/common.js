@@ -1,6 +1,6 @@
 export default {
     sendMsg(message, text, type = 'default', duration = 2500, otherOptions = {}) {
-        message.create(text, {
+        return message.create(text, {
             type,
             duration,
             closable: true,
