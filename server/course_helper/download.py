@@ -103,6 +103,19 @@ class Downloader:
             }
         }, client_id=tuple(ConnectionManager.active_connections.keys())[0])
 
+    @classmethod
+    async def _download_error(cls, download_id: str):
+        """
+        发送ws消息提示前端下载错误
+        """
+        await ConnectionManager.send_message({
+            'cmd': 'update_download_progress',
+            'params': {
+                'download_id': download_id,
+                'error': True
+            }
+        }, client_id=tuple(ConnectionManager.active_connections.keys())[0])
+
     @staticmethod
     def download_file_dir_check(file_path: str):
         """
@@ -123,15 +136,13 @@ class Downloader:
             'res_id': res_id,
             'path': path
         })
-        # 开启下载队列（通知消费者）
-        asyncio.Task(cls.run())
 
     @classmethod
     async def run(cls):
         """
         开启下载队列（消费者）
-        :return:
         """
+
         # 判断队列是否已在下载
         if cls.running:
             return
@@ -142,40 +153,52 @@ class Downloader:
             if Downloader.file_queue.empty():
                 break
             file_info = Downloader.file_queue.get()
+            try:
+                s = await User.get_login_session()
+                with s.get('https://course2.xmu.edu.cn/meol/common/script/download.jsp?'
+                           f'fileid={file_info["file_id"]}&resid={file_info["res_id"]}', stream=True) as r:
+                    file_size = int(r.headers['content-length'])  # 文件大小 Byte
+                    download_id = file_info['download_id']
 
-            s = await User.get_login_session()
-            with s.get('https://course2.xmu.edu.cn/meol/common/script/download.jsp?'
-                       f'fileid={file_info["file_id"]}&resid={file_info["res_id"]}', stream=True) as r:
-                file_size = int(r.headers['content-length'])  # 文件大小 Byte
-                download_id = file_info['download_id']
+                    # 检查path所在文件夹
+                    cls.download_file_dir_check(file_info['path'])
+                    with open(file_info['path'], "wb") as file:
+                        down_size = 0  # 已下载字节数
+                        old_down_size = 0  # 上一次已下载字节数
+                        now = time.time()
+                        await cls._update_download_progress(download_id, '下载开始', '--', 0)
+                        for chunk in r.iter_content(chunk_size=1024):  # 每次下载1B
+                            if chunk:
+                                file.write(chunk)
+                                down_size += len(chunk)
 
-                # 检查path所在文件夹
-                cls.download_file_dir_check(file_info['path'])
-                with open(file_info['path'], "wb") as file:
-                    down_size = 0  # 已下载字节数
-                    old_down_size = 0  # 上一次已下载字节数
-                    now = time.time()
-                    for chunk in r.iter_content(chunk_size=1024):  # 每次下载1B
-                        if chunk:
-                            file.write(chunk)
-                            down_size += len(chunk)
-                            if time.time() - now >= 0.5:  # 每0.5s计算一次下载速度
-                                speed = round((down_size - old_down_size) / 0.5)
-                                time_remain = round((file_size - down_size) / speed)
-                                speed_str = cls.byte_to_suitable_size(speed) + '/s'
-                                time_remain_str = cls._sec_to_suitable_time(time_remain)
+                                if time.time() - now >= 0.5:  # 每0.5s计算一次下载速度
+                                    speed = round((down_size - old_down_size) / 0.5)
+                                    time_remain = round((file_size - down_size) / speed)
+                                    speed_str = cls.byte_to_suitable_size(speed) + '/s'
+                                    time_remain_str = cls._sec_to_suitable_time(time_remain)
 
-                                # ws发送消息更新下载进度
-                                await cls._update_download_progress(download_id, speed_str,
-                                                                    time_remain_str, down_size)
-                                # 避免阻塞ws通知的线程
-                                await asyncio.sleep(0.01)
-                                old_down_size = down_size
-                                now = time.time()
-                # 此文件下载结束ws消息
-                await cls._download_finished(download_id)
-                # 避免请求过频繁
-                await asyncio.sleep(0.5)
+                                    # ws发送消息更新下载进度
+                                    await cls._update_download_progress(download_id, speed_str,
+                                                                        time_remain_str, down_size)
+                                    # 避免阻塞ws通知的线程
+                                    await asyncio.sleep(0.01)
+                                    old_down_size = down_size
+                                    now = time.time()
+                    # 此文件下载结束ws消息
+                    await cls._download_finished(download_id)
+                    # 避免请求过频繁
+                    await asyncio.sleep(0.5)
+            except Exception as e:
+                print('下载发生错误', e)
+                # 原文件存在则删除
+                try:
+                    os.remove(file_info['path'])
+                except:
+                    pass
+                # 发送下载错误通知
+                await cls._download_error(download_id)
+                await asyncio.sleep(0.01)
 
         cls.running = False
 

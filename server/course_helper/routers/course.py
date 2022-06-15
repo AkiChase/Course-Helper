@@ -1,6 +1,7 @@
 import asyncio
 import os
 import re
+
 import nanoid
 from fastapi import APIRouter, HTTPException, BackgroundTasks
 from lxml import etree
@@ -317,7 +318,13 @@ async def download_course_resource(data: DownloadFilesModel, background_tasks: B
                 download_info.append(file_info)
                 logger.success(f'下载任务创建成功 download_id:{download_id} size:{file_info["file_size"]} path:{file_path}')
                 # 降低请求频率
-                await asyncio.sleep(0.25)
+                await asyncio.sleep(0.35)
+
+        # 1s后开启下载队列（通知消费者）
+        async def tmp():
+            await asyncio.sleep(1)
+            await Downloader.run()
+        background_tasks.add_task(tmp)
 
         return success_info('文件已添加到下载列表', data=download_info)
 
