@@ -11,7 +11,7 @@ import os
 sys.path.append(os.path.split(os.path.abspath(os.path.dirname(__file__)))[0])
 
 from starlette.middleware.cors import CORSMiddleware
-from course_helper.routers import user, websocket, course
+from course_helper.routers import user, websocket, course, file
 
 # 神奇地修复了CMD下颜色乱码的问题
 os.system('')
@@ -76,6 +76,8 @@ async def __init():
     app.include_router(user.router, prefix="/user")
     # 课程路由
     app.include_router(course.router, prefix="/course")
+    # 文件路由
+    app.include_router(file.router, prefix="/file")
 
 
 @app.get('/')

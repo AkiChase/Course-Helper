@@ -1,9 +1,8 @@
 import asyncio
 import os
 import re
-
 import nanoid
-from fastapi import APIRouter, HTTPException, BackgroundTasks, Response
+from fastapi import APIRouter, HTTPException, BackgroundTasks
 from lxml import etree
 from pydantic import BaseModel
 
@@ -25,6 +24,11 @@ class FileModel(BaseModel):
 class DownloadFilesModel(BaseModel):
     file_list: list[FileModel]
     dir_path: str
+
+
+class HomeworkSubmitModel(BaseModel):
+    hw_id: str
+    content: str
 
 
 @router.on_event("startup")
@@ -92,6 +96,29 @@ async def get_course_introduction(course_id: str):
         raise HTTPException(400, detail=error_info('获取课程介绍失败'))
 
 
+@router.get('/getHomeworkCommittableState')
+async def get_homework_committable_state(course_id: str, hw_id: str):
+    """
+    检查作业可提交状态
+    """
+    try:
+        session = await User.get_login_session()
+        session.get(f'https://course2.xmu.edu.cn/meol/jpk/course/layout/newpage/index.jsp?courseId={course_id}')
+        res = session.get(f'https://course2.xmu.edu.cn/meol/common/hw/student/hwtask.view.jsp?hwtid={hw_id}')
+        html = etree.HTML(res.text)
+        return success_info(msg='检验作业可提交状态成功', data={
+            'hw_id': hw_id,
+            'committable': len(html.xpath("//div[@class='buttonc']/input[@value='提交作业']")) > 0
+        })
+
+    except CourseHelperException as e:
+        logger.warning(f'检验作业是否可提交失败 - 失败原因:{e}')
+        raise HTTPException(400, detail=error_info(e.data))
+    except Exception as e:
+        logger.debug(f'检验作业是否可提交失败 e-{e}')
+        raise HTTPException(400, detail=error_info('检验作业是否可提交失败'))
+
+
 @router.get('/getCourseHomework/{course_id}')
 async def get_course_homework(course_id: str):
     """
@@ -117,7 +144,7 @@ async def get_course_homework(course_id: str):
             for index, name in enumerate(['end_date', 'score', 'publisher'], 1):
                 hw_obj[name] = cols[index].text.strip()
 
-            #   超时或已提交则为false
+            #   无法继续提交则为false（可能是超时、不可重复提交）
             hw_obj['committable'] = len(cols[5].xpath('./a')) > 0
             homeworks.append(hw_obj)
 
@@ -162,7 +189,7 @@ async def get_homework_details(hw_id: str):
         for index in range(3):
             if len(nodes[index]) > 0:
                 value = re.sub(r"(http.*/meol|/meol)(.*?openfile.jsp\?id=)",
-                               "http://127.0.0.1:6498/course/openFile/",
+                               "http://127.0.0.1:6498/file/openFile/",
                                nodes[index][0].attrib['value'])
 
                 value = re.sub(r'<a href=.*?openFile/(.*?)">(.*?)</a>',
@@ -186,6 +213,27 @@ async def get_homework_details(hw_id: str):
     except Exception as e:
         logger.debug(f'获取作业详情失败 e-{e}')
         raise HTTPException(400, detail=error_info('获取课程详情失败'))
+
+
+@router.post('/submitHomework')
+async def submit_homework(data: HomeworkSubmitModel):
+    try:
+        session = await User.get_login_session()
+        res = session.post('https://course2.xmu.edu.cn/meol/common/hw/student/write.do.jsp', {
+            'hwtid': data.hw_id,
+            'IPT_BODY': data.content.encode('gbk'),
+        }, allow_redirects=False)
+
+        if res.status_code != 302:
+            raise CourseHelperException('作业提交失败')
+
+        return success_info('作业提交成功')
+    except CourseHelperException as e:
+        logger.warning(f'作业提交失败 - 失败原因:{e}')
+        raise HTTPException(400, detail=error_info(e.data))
+    except Exception as e:
+        logger.debug(f'作业提交失败 e-{e}')
+        raise HTTPException(400, detail=error_info('作业提交失败'))
 
 
 @router.get('/getCourseResource/{course_id}')
@@ -234,8 +282,8 @@ async def get_course_resource_info(file_id: str, res_id: str):
         raise HTTPException(400, detail=error_info('获取课程资源信息失败'))
 
 
-@router.post('/downloadCourseFiles')
-async def download_course_files(data: DownloadFilesModel, background_tasks: BackgroundTasks):
+@router.post('/downloadCourseResource')
+async def download_course_resource(data: DownloadFilesModel, background_tasks: BackgroundTasks):
     """
     下载课程资源文件
     """
@@ -265,6 +313,7 @@ async def download_course_files(data: DownloadFilesModel, background_tasks: Back
                 background_tasks.add_task(
                     Downloader.add_download_task, download_id, item.file_id, item.res_id, file_path
                 )
+                await asyncio.sleep(0.01)  # 避免阻塞ws通知的线程
                 download_info.append(file_info)
                 logger.success(f'下载任务创建成功 download_id:{download_id} size:{file_info["file_size"]} path:{file_path}')
                 # 降低请求频率
@@ -278,63 +327,6 @@ async def download_course_files(data: DownloadFilesModel, background_tasks: Back
     except Exception as e:
         logger.debug(f'文件下载失败 e-{e}')
         raise HTTPException(400, detail=error_info('文件下载失败'))
-
-
-class DownloadModel(BaseModel):
-    file_id: str
-    dir_path: str
-
-
-@router.post('/downloadFile')
-async def download_file(data: DownloadModel, background_tasks: BackgroundTasks):
-    """
-    下载course网站内openfile指向的文件
-    :param data:
-    :param background_tasks:
-    :return:
-    """
-    s = await User.get_login_session()
-    r = s.get(f'https://course2.xmu.edu.cn/meol/common/ckeditor/openfile.jsp?id={data.file_id}', stream=True)
-    file_size = int(r.headers['content-length'])  # 文件大小 Byte
-    file_name = Downloader.get_headers_file_name(r.headers.get("Content-Disposition"))
-    while True:
-        # 拼接目录 子目录 文件名
-        file_path = os.path.abspath(os.path.join(data.dir_path, file_name))
-        if os.path.exists(file_path):
-            # 文件名重复则添加一个#
-            file_name_no_ext = file_name[0:file_name.rfind('.')]
-            file_ext = file_name[file_name.rfind('.') + 1:]
-            file_name = f"{file_name_no_ext}#.{file_ext}"
-        else:
-            break
-
-    background_tasks.add_task(Downloader.download_open_in_folder, file_path, r)
-    return success_info('开始下载！下载完成后将在文件夹显示', data={
-        'file_name': file_name,
-        'file_path': file_path,
-        'file_size': Downloader.byte_to_suitable_size(file_size)
-    })
-
-
-@router.get('/openFile/{file_id}')
-async def open_file(file_id: str):
-    """
-    转发course网站内openfile指向的文件请求（用于显示图片）
-    :param file_id:
-    :return:
-    """
-    try:
-        session = await User.get_login_session()
-        res = session.get(f'https://course2.xmu.edu.cn/meol/common/ckeditor/openfile.jsp?id={file_id}')
-
-        headers = dict(res.headers)
-        return Response(content=res.content, headers=headers)
-    except CourseHelperException as e:
-        logger.warning(f'打开资源失败 - 失败原因:{e}')
-        raise HTTPException(400, detail=error_info(e.data))
-    except Exception as e:
-        logger.debug(f'打开资源失败 e-{e}')
-        raise HTTPException(400, detail=error_info('打开资源失败'))
 
 
 def get_resource_in_folder(course_id, folder_id, s, deep_flag=False) -> list:
