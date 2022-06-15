@@ -1,6 +1,6 @@
 import {app, dialog, ipcMain, shell} from 'electron'
 import path from 'path'
-import open from 'open'
+import {exec} from "child_process";
 
 export default (win) => {
     ipcMain.on('win:minimize', () => win.minimize())
@@ -22,6 +22,6 @@ export default (win) => {
     ipcMain.handle('open:server', async (e, cmd) => {
         const serverPath = process.env.NODE_ENV !== 'production' ?
             path.join(__dirname, "../../server/dist/server.exe") : path.join(process.cwd(), "/resources/server.exe")
-        await open.openApp(serverPath, {arguments: [cmd]})
+        exec(`start ${serverPath} ${cmd}`)
     })
 }
