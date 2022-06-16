@@ -28,23 +28,15 @@
 
    双击桌面快捷方式，启动软件
 
-   
-   
    软件启动时会尝试启动后端服务（黑框框）
    
    **启动失败**，请尝试在软件内启动后端，操作如下图
    
-   
-   
-   <img src="https://s2.loli.net/2022/05/27/KqeWcuQGavVgDnM.png" alt="启动后端步骤" style="zoom:50%;" />
+   <img src="https://s2.loli.net/2022/06/16/kBUvm7pHeOcsVSu.png" alt="启动后端" style="zoom: 75%;border-radius:25px" />
    
    
    
    **若仍启动失败**，请手动运行`xxx安装目录\resources\server.exe`
-
-
-
-
 
 ------
 
@@ -74,7 +66,7 @@ course平台已有十年的使用历史，由于缺少更新、维护，使用�
 
 可以查看课程列表与课程基本信息
 
-### 4. 课件批量下载 ✔️
+### 4. 课程资源下载 ✔️
 
 进入某课程后，可以勾选需要下载的课程资源文件，批量下载
 

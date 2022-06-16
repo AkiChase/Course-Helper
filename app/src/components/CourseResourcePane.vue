@@ -335,7 +335,7 @@ export default {
         api.post('http://127.0.0.1:6498/course/downloadCourseResource', {
           file_list: fileList,
           dir_path: dirPath
-        }, fileList.length * 1000).then(res => {
+        }, fileList.length * 2000 + 10000).then(res => {
           msg?.destroy()
           store.dispatch('push_download_queue', res.data)
           common.sendMsg(message, res.msg, 'success')
