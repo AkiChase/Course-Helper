@@ -1,4 +1,4 @@
-import {contextBridge, ipcRenderer} from 'electron'
+import {contextBridge, ipcRenderer, clipboard} from 'electron'
 import path from "path";
 import fs from "fs";
 
@@ -28,6 +28,9 @@ contextBridge.exposeInMainWorld('$electron', {
             },
             fExists: (path) => fs.existsSync(path),
             server: async (cmd) => await ipcRenderer.invoke('open:server', cmd),
+            clipboard: {
+                writeText: (text) => clipboard.writeText(text)
+            },
             shell: {
                 showItemInFolder: async (path) => await ipcRenderer.invoke('shell:showItemInFolder', path),
             },

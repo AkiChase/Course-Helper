@@ -69,7 +69,7 @@ import {
   NEmpty,
   NH2,
   NH3,
-  NIcon,
+  NIcon, useDialog,
   useMessage
 } from "naive-ui";
 import {onMounted, ref, toRefs} from "vue";
@@ -90,6 +90,7 @@ export default {
   emits: ['download-modal', 'show-hide-loading'],
   setup(props, context) {
     const message = useMessage()
+    const dialog = useDialog()
     const store = useStore()
     const editorRef = ref(null)
 
@@ -128,16 +129,16 @@ export default {
         api.get('http://127.0.0.1:6498/course/getHomeworkCommittableState', {
           course_id: courseId,
           hw_id: id
-        }).then(res => {
-          const committable = res.data['committable']
+        }).then(res2 => {
+          const committable = res2.data['committable']
           store.dispatch('updateHomeworkTabs', {
             hwId: id, data: {'committable': committable}
           })
           if (committable)
             editorRef.value[0].loadCustomHtml(answer) //编辑框载入更新后的作业内容
-
+          context.emit('show-hide-loading', false)
+          common.sendMsg(message, res.msg, 'success')
         }).catch()
-        context.emit('show-hide-loading', false)
       }).catch(err => {
         console.log(err)
         common.sendMsg(message, err, 'error')
@@ -156,18 +157,25 @@ export default {
       hwId: id,
       editorRef,
       editorSubmit() {
-        context.emit('show-hide-loading', true)
-        api.post('http://127.0.0.1:6498/course/submitHomework', {
-          hw_id: id,
-          content: editorRef.value[0].getCustomHtml()
-        }).then(res => {
-          common.sendMsg(message, res.msg, 'success')
-
-          //刷新作业详情
-          getHomeworkDetail()
-        }).catch(err => {
-          context.emit('show-hide-loading', false)
-          common.sendMsg(message, err, 'error')
+        dialog.info({
+          title: '提示',
+          content: '默认情况下作业不可重复提交，确定提交该作业？',
+          positiveText: '确定',
+          negativeText: '取消',
+          onPositiveClick: () => {
+            context.emit('show-hide-loading', true)
+            api.post('http://127.0.0.1:6498/course/submitHomework', {
+              hw_id: id,
+              content: editorRef.value[0].getCustomHtml()
+            }).then(res => {
+              common.sendMsg(message, res.msg, 'success')
+              //刷新作业详情
+              getHomeworkDetail()
+            }).catch(err => {
+              context.emit('show-hide-loading', false)
+              common.sendMsg(message, err, 'error')
+            })
+          }
         })
       },
     }
