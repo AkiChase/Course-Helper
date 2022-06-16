@@ -108,7 +108,7 @@ import {
 import {h, onMounted, ref} from "vue";
 import api from "@/utils/api";
 import common from "@/utils/common";
-import {BulbOutline, DownloadOutline, InformationCircleOutline} from "@vicons/ionicons5";
+import {BulbOutline, DownloadOutline, InformationCircleOutline, LinkOutline} from "@vicons/ionicons5";
 import {FileAlt, FileArchive, FileExcel, FilePdf, FilePowerpoint, FileVideo, FileWord, Folder} from "@vicons/fa";
 import {useStore} from "vuex";
 import DownloadModal from "@/components/DownloadModal";
@@ -118,7 +118,7 @@ export default {
   components: {
     NInput, NTree, NButton, NSpace, NIcon, NTooltip, NDropdown, NModal, NCard, NSpin, NEllipsis,
     BulbOutline, Folder, FilePdf, FilePowerpoint, FileWord, FileExcel, FileVideo, FileArchive, FileAlt, DownloadOutline,
-    InformationCircleOutline,
+    InformationCircleOutline, LinkOutline,
     DownloadModal
   },
   props: ['courseId', 'courseName'],
@@ -179,12 +179,13 @@ export default {
 
     const nameToIcon = {
       'folder': [Folder, '#f4d16e'],
+      'link': [LinkOutline, '#666'],
       'pdf': [FilePdf, '#9e2a22'],
       'powerpoint': [FilePowerpoint, '#e18a3b'],
       'word': [FileWord, '#4994c4'],
       'excel': [FileExcel, '#4c8045'],
       'video': [FileVideo, '#0cca8a'],
-      'zip': [FileArchive, '#ffc757']
+      'zip': [FileArchive, '#ffc757'],
     }
 
     function typeNameToSuffix(name) {
@@ -197,9 +198,15 @@ export default {
     function addSuffix(items) {
       items.forEach(item => {
         item.suffix = typeNameToSuffix(item['type_name'])
-        if (item?.children?.length) {
-          addSuffix(item.children)
-        }
+        if (item?.children?.length) addSuffix(item.children)
+      })
+    }
+
+    function addDetail(items) {
+      items.forEach(item => {
+        item.isLeaf = (item['type_name'] !== 'folder')
+        if (item['type_name'] === 'link') item.checkboxDisabled = true
+        if (item?.children?.length) addDetail(item.children)
       })
     }
 
@@ -209,13 +216,13 @@ export default {
       return new Promise(resolve => {
         api.get(url).then(res => {
           const resData = res.data['content']
-          resData.forEach(item => {
-            item.isLeaf = item['type_name'] !== 'folder'
-          })
-          addSuffix(resData)
-
+          if (resData.length) {
+            addDetail(resData)
+            addSuffix(resData)
+          }
           resolve(resData)
         }).catch(err => {
+          console.log(err)
           common.sendMsg(message, err, 'error')
           resolve([])
         })
@@ -372,7 +379,7 @@ export default {
         const folderId = node['folder_id']
         const courseId = props.courseId
         return load(courseId, folderId).then(res => {
-          if (res.length) node.children = res
+          node.children = res
         })
       },
       preLoad(courseId) {
@@ -406,7 +413,7 @@ export default {
       treeNodeProps({option}) {
         return {
           onContextmenu(e) {
-            if (option['type_name'] !== 'folder') {
+            if (option['type_name'] !== 'folder' || option['type_name'] !== 'link') {
               const itemInfo = {
                 key: option.key,
                 res_id: option.res_id,
@@ -421,6 +428,12 @@ export default {
               posY.value = e.clientY
             }
             e.preventDefault()
+          },
+          onClick(){
+            if (option['type_name'] === 'link'){
+              window.$electron.utils.clipboard.writeText(option['link'])
+              common.sendMsg(message, `网页链接已复制:\n${option['link']}`, 'success')
+            }
           }
         }
       },

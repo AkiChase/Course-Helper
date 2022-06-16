@@ -130,22 +130,19 @@ export default {
         html = html.replaceAll(/(<img.*?src=").*?openFile\/(.*?)"(.*?)>/g,
             `$1/meol/common/ckeditor/openfile.jsp?id=$2"$3`)
 
+        if (html.indexOf('<a class="attachment"')>-1) html+='#editor-content-view a.attachment{display:inline-block;margin-left:3px;margin-right:3px;border:2px solid transparent;border-radius:3px;padding:0 3px;background-color:#f1f1f1;cursor:inherit;text-decoration:none;color:#666}#editor-content-view a.attachment:hover{background-color:#ddd}#editor-content-view a.attachment:before{content:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cg%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M16%202a6%206%200%200%201%204.397%2010.084l-.19.194l-8.727%208.727l-.053.05l-.056.045a3.721%203.721%200%200%201-5.253-5.242l.149-.164l.015-.011l7.29-7.304a1%201%200%200%201%201.416%201.413l-7.29%207.304l-.012.008a1.721%201.721%200%200%200%202.289%202.553l.122-.1l.001.001l8.702-8.7l.159-.165a4%204%200%200%200-5.753-5.554l-.155.16l-.018.012l-9.326%209.33a1%201%200%200%201-1.414-1.415l9.309-9.313l.046-.043A5.985%205.985%200%200%201%2016.001%202z%22%20fill%3D%22currentColor%22%3E%3C%2Fpath%3E%3C%2Fg%3E%3C%2Fsvg%3E");display:inline-block;width:12px;margin-right:5px}'
         html += `
 <style>
-#editor-content-view a.attachment{display:inline-block;margin-left:3px;margin-right:3px;border:2px solid transparent;border-radius:3px;padding:0 3px;background-color:#f1f1f1;cursor:inherit;text-decoration:none;color:#666}#editor-content-view a.attachment:hover{background-color:#ddd}#editor-content-view a.attachment:before{content:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cg%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M16%202a6%206%200%200%201%204.397%2010.084l-.19.194l-8.727%208.727l-.053.05l-.056.045a3.721%203.721%200%200%201-5.253-5.242l.149-.164l.015-.011l7.29-7.304a1%201%200%200%201%201.416%201.413l-7.29%207.304l-.012.008a1.721%201.721%200%200%200%202.289%202.553l.122-.1l.001.001l8.702-8.7l.159-.165a4%204%200%200%200-5.753-5.554l-.155.16l-.018.012l-9.326%209.33a1%201%200%200%201-1.414-1.415l9.309-9.313l.046-.043A5.985%205.985%200%200%201%2016.001%202z%22%20fill%3D%22currentColor%22%3E%3C%2Fpath%3E%3C%2Fg%3E%3C%2Fsvg%3E");display:inline-block;width:12px;margin-right:5px}
-
 #editor-content-view p,
 #editor-content-view li {
   white-space: pre-wrap;
 }
-
 #editor-content-view blockquote {
   border-left: 8px solid #d0e5f2;
   padding: 10px 10px;
   margin: 10px 0;
   background-color: #f1f1f1;
 }
-
 #editor-content-view code {
   font-family: monospace;
   background-color: #eee;
@@ -156,7 +153,6 @@ export default {
   display: block;
   padding: 10px;
 }
-
 #editor-content-view table {
   border-collapse: collapse;
 }
@@ -169,21 +165,17 @@ export default {
 #editor-content-view th {
   background-color: #f1f1f1;
 }
-
 #editor-content-view ul,
 #editor-content-view ol {
   padding-left: 20px;
 }
-
 #editor-content-view input[type="checkbox"] {
   margin-right: 5px;
 }
-
 #editor-content-view [data-w-e-type="video"] {
   text-align: center;
 }
-</style>
-        `
+</style>`
         return html
       }
     }
