@@ -153,12 +153,12 @@ class Downloader:
             if Downloader.file_queue.empty():
                 break
             file_info = Downloader.file_queue.get()
+            download_id = file_info['download_id']
             try:
                 s = await User.get_login_session()
                 with s.get('https://course2.xmu.edu.cn/meol/common/script/download.jsp?'
                            f'fileid={file_info["file_id"]}&resid={file_info["res_id"]}', stream=True) as r:
                     file_size = int(r.headers['content-length'])  # 文件大小 Byte
-                    download_id = file_info['download_id']
 
                     # 检查path所在文件夹
                     cls.download_file_dir_check(file_info['path'])
