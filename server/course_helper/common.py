@@ -1,6 +1,3 @@
-import time
-
-
 def success_info(msg: str, success: int = 1, **kwargs) -> dict:
     out = {
         'msg': msg,
