@@ -324,6 +324,7 @@ async def download_course_resource(data: DownloadFilesModel, background_tasks: B
         async def tmp():
             await asyncio.sleep(1)
             await Downloader.run()
+
         background_tasks.add_task(tmp)
 
         return success_info('文件已添加到下载列表', data=download_info)
@@ -359,6 +360,10 @@ def get_resource_in_folder(course_id, folder_id, s, deep_flag=False) -> list:
             res_obj['folder_id'] = re.search(r'folderid=(\d*)', res_url).group(1)
             if deep_flag:
                 res_obj['children'] = get_resource_in_folder(course_id, res_obj['folder_id'], s, deep_flag)
+        elif type_name == 'link':
+            res_id = re.search(r'resid=(\d*)', res_url).group(1)
+            link_res = s.get(f'https://course2.xmu.edu.cn/meol/common/script/openurl.jsp?resid={res_id}')
+            res_obj['link'] = re.search(r"location.href='(.*?)'", link_res.text).group(1)
         else:
             res_obj['file_id'], res_obj['res_id'] = re.search(r'fileid=(\d*).*?resid=(\d*)', res_url).group(1, 2)
         content.append(res_obj)
