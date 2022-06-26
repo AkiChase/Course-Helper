@@ -1,6 +1,9 @@
 # Course Helper
 
 一个Electron+Vue3作为前端，Python作为本地后端的桌面端软件。
+   
+[演示视频](https://www.bilibili.com/video/BV17S4y1v7R6?share_source=copy_web)
+
 
 [TOC]
 
@@ -37,12 +40,6 @@
    
    
    **若仍启动失败**，请手动运行`xxx安装目录\resources\server.exe`
-   
-   
-   
-4. **演示教程**
-
-   [B站视频](https://www.bilibili.com/video/BV17S4y1v7R6?share_source=copy_web)
 
 ------
 
