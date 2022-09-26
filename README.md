@@ -1,6 +1,8 @@
 # Course Helper
 
 厦门大学course平台第三方客户端，一个Electron+Vue3作为前端，Python作为本地后端的桌面端软件。
+
+觉得还不错的点个Star⭐吧，这是对本人最大的鼓励！
    
 [演示视频](https://www.bilibili.com/video/BV17S4y1v7R6?share_source=copy_web)
 
